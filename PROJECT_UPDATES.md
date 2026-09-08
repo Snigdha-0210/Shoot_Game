@@ -18,18 +18,19 @@ This document serves as the comprehensive progress tracker, architecture referen
 | Module | File Path | Status | Summary |
 | :--- | :--- | :---: | :--- |
 | **WebGL Renderer** | [`src/engine/Renderer.js`](src/engine/Renderer.js) | ✅ Complete | Three.js WebGLRenderer with shadows, ACESFilmicToneMapping, starry sky dome, directional moonlight, linear fog (35m–140m), and spark/blood particle systems. |
-| **Procedural Audio** | [`src/engine/Audio.js`](src/engine/Audio.js) | ✅ Complete | Pure Web Audio API procedural synthesizer for suppressed shots, AK-47 bursts, headshot kill chimes, heartbeat tension, bomb beeps, wire snips, and sirens. |
-| **Input Manager** | [`src/engine/Input.js`](src/engine/Input.js) | ✅ Complete | PointerLock mouse aim, WASD movement, Crouch (`C`/`Ctrl`), Sprint (`Shift`), ADS (`RMB`), Fire (`LMB`), Reload (`R`), Flashlight (`F`), Interact (`E`). |
-| **Procedural Textures** | [`src/engine/TextureGenerator.js`](src/engine/TextureGenerator.js) | ✅ Complete | Real-time HTML5 Canvas texture synthesis for wet cobblestone pavement, European brick facades with grunge, and glowing microchip PCB circuit boards. |
-| **Player Controller** | [`src/game/Player.js`](src/game/Player.js) | ✅ Complete | First-person operative with suppressed M4A1 rifle, weapon sway, recoil kickback, holographic sight, 3 armor lifelines, 100% health bar, and smooth sliding capsule collision. |
-| **3D Commando Models** | [`src/game/Enemy.js`](src/game/Enemy.js) | ✅ Complete | High-detail SWAT 3D soldier models with FAST ballistic helmets, illuminated green NVG night-vision goggles, plate carriers, radio transceivers, and weapon lights. |
-| **Stealth & Enemy AI** | [`src/game/EnemyAI.js`](src/game/EnemyAI.js) | ✅ Complete | Multi-state AI (Patrol $\rightarrow$ Suspicious $\rightarrow$ Combat) with line-of-sight raycasting, dark/fog awareness, acoustic noise perception, and tactical burst fire. |
-| **Scoring & Hitboxes** | [`src/game/HitboxManager.js`](src/game/HitboxManager.js) | ✅ Complete | Precise 3D raycast hit detection: **+15 Headshot**, **+5 Body Shot**, **-3 Enemy Hit Penalty** to operative, plus floating score popups and damage flash vignette. |
+| **Procedural Audio** | [`src/engine/Audio.js`](src/engine/Audio.js) | ✅ Complete | Pure Web Audio API procedural synthesizer for suppressed M4A1, USP-45 pistol, sniper cracks, smoke detonation hiss, slow-mo heartbeat, combo kill chimes, and boss shield hits. |
+| **Input Manager** | [`src/engine/Input.js`](src/engine/Input.js) | ✅ Complete | PointerLock mouse aim, WASD, Crouch (`C`/`Ctrl`), Sprint (`Shift`), ADS (`RMB`), Fire (`LMB`), Reload (`R`), Flashlight (`F`), Interact (`E`), Weapon Swap (`Q`/`1`/`2`), Smoke (`G`), Focus (`Space`). |
+| **Dual Weapon System** | [`src/game/Player.js`](src/game/Player.js) | ✅ Complete | Dual suppressed 3D weapon models (M4A1-S Carbine & USP-45 Tactical Pistol) with dynamic weapon switching, Adrenaline Bullet-Time meter, and smoke grenade inventory. |
+| **Enemy Archetypes** | [`src/game/Enemy.js`](src/game/Enemy.js) | ✅ Complete | 4 specialized combat classes: Fast Patrol Scout, Heavy Armored Juggernaut Tank, Catwalk Sniper (red laser tracking beam), and Citadel Commander Boss (energy shield). |
+| **Tactical AI Subsystem** | [`src/game/EnemyAI.js`](src/game/EnemyAI.js) | ✅ Complete | Multi-state AI with sniper laser target acquisition (1.5s lock-on), juggernaut heavy advance, smoke cloud blindness reaction, and acoustic hearing. |
+| **Smoke Grenades** | [`src/game/Grenade.js`](src/game/Grenade.js) | ✅ Complete | Realistic parabolic throw physics, bounce mechanics, and expanding 3D volumetric smoke clouds that blind enemies and block line of sight. |
+| **Loot Drops & Pickups** | [`src/game/Pickups.js`](src/game/Pickups.js) | ✅ Complete | 3D spinning glowing Ammo Crates (+15 Ammo) and Armor Kits (+25 Armor) dropped on enemy defeat with magnetic attraction and particle bursts. |
+| **Killstreaks & Combos** | [`src/game/HitboxManager.js`](src/game/HitboxManager.js) | ✅ Complete | Headshot combo multipliers (`COMBO x2!`, `COMBO x3!`, `UNSTOPPABLE!`), Silent Assassin stealth bonus (+25 pts), and active weapon damage scaling. |
 | **3D Bomb Ordnance** | [`src/game/Bomb.js`](src/game/Bomb.js) | ✅ Complete | 3D C4 bomb with blue/black vinyl tape, glowing PCB circuit traces, fiery orange digital clock (`01:28:45`), status LEDs, 18m vertical sky beacon, and rotating 3D waypoint diamond. |
 | **Defusal Terminal** | [`src/game/DefusalStation.js`](src/game/DefusalStation.js) | ✅ Complete | Interactive wire-cutting puzzle station with procedural colored wires, serial plates, status LEDs, Field Manual logic rules, spark particles, and wrong-cut time penalties (-20s). |
-| **Level Manager** | [`src/game/LevelManager.js`](src/game/LevelManager.js) | ✅ Complete | 4 progressive sector maps with unique lighting themes, props, cover obstacles, enemy patrol routes, and bomb placements. |
+| **Level Manager & Set-Pieces** | [`src/game/LevelManager.js`](src/game/LevelManager.js) | ✅ Complete | 4 progressive sectors with spinning red siren lights, neon signage (`BAR NOCTURNE`), elevated sniper catwalks, radioactive bubbling vats, and security laser tripwires. |
 | **Radar Minimap** | [`src/game/Minimap.js`](src/game/Minimap.js) | ✅ Complete | Forward-aligned tactical radar canvas with concentric distance rings (15m, 30m, 45m), dynamic sweep beam, player arrow, enemy blips, and pulsing `★ BOMB` marker. |
-| **Tactical HUD & UI** | [`src/game/UI.js`](src/game/UI.js) | ✅ Complete | Real-time HUD, 3D screen-space waypoint tracker with directional edge pointer arrows, health/lifeline bars, acoustic noise meter, briefing modals, and victory screens. |
+| **Tactical HUD & UI** | [`src/game/UI.js`](src/game/UI.js) | ✅ Complete | Glassmorphism HUD, weapon slot badges, Adrenaline Focus gauge, Smoke counter, combo multiplier banners, Boss shield/health bar, and 3D screen-space waypoint tags. |
 
 ---
 
@@ -91,10 +92,11 @@ Use this quick-reference guide to rapidly test or play through all 4 sectors:
 
 ---
 
-## 🎯 Scoring & Lifeline Mechanics
+## 🎯 Scoring, Combos & Lifeline Mechanics
 
-- **Headshot Kill:** **`+15 Points`** (Precision 3D head hitbox, instant critical elimination, golden hitmarker & chime).
-- **Body Shot:** **`+5 Points`** (Torso/limb hitboxes, damage staggering).
+- **Headshot Combo Multipliers:** Landing headshots in succession within 3.5s triggers `COMBO x2!`, `COMBO x3!`, `UNSTOPPABLE!`, awarding multiplying score bonuses (+15, +30, +45, +60 pts).
+- **Stealth Assassin Bonus:** Neutralizing an unaware guard before combat triggers awards **`+25 SILENT ASSASSIN`** bonus points.
+- **Body Shot:** **`+5 Points`** (Staggers and damages target).
 - **Enemy Hit Taken:** **`-3 Points`** penalty per hit taken, screen damage flash, and armor reduction.
 - **Lifelines:** 3 Tactical Armor Plates (🛡️ 🛡️ 🛡️). Depleting all 3 lifelines triggers Mission Failed with an immediate retry button.
 
@@ -115,7 +117,7 @@ Use this quick-reference guide to rapidly test or play through all 4 sectors:
 
 ---
 
-## 🚀 How to Resume Development
+## 🚀 How to Run & Play
 
 ```bash
 # Clone and navigate

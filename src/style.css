@@ -1157,3 +1157,221 @@ html, body {
   padding: 8px 10px;
   border-radius: 4px;
 }
+
+/* --- BOSS HEALTH & SHIELD HUD (LEVEL 4) --- */
+.boss-hud {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 550px;
+  background: rgba(15, 20, 28, 0.85);
+  border: 1px solid rgba(255, 204, 0, 0.5);
+  border-radius: 6px;
+  padding: 8px 14px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 25px rgba(255, 204, 0, 0.3);
+  z-index: 20;
+}
+
+.boss-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.boss-name {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--neon-gold);
+}
+
+.boss-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.boss-bar-track {
+  height: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.boss-bar-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #fff;
+  text-shadow: 0 0 4px #000;
+}
+
+.shield-fill {
+  background: linear-gradient(90deg, #0099ff, #00f0ff);
+  box-shadow: 0 0 10px #00f0ff;
+  transition: width 0.15s ease-out;
+}
+
+.health-fill {
+  background: linear-gradient(90deg, #ff2233, #ff6677);
+  box-shadow: 0 0 10px #ff2233;
+  transition: width 0.15s ease-out;
+}
+
+/* --- KILL COMBO MULTIPLIER BANNER --- */
+.combo-banner {
+  position: absolute;
+  top: 28%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.combo-banner.pulse {
+  animation: combo-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes combo-pop {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.0); opacity: 1; }
+}
+
+.combo-text {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--neon-gold);
+  text-shadow: 0 0 20px rgba(255, 204, 0, 0.9), 0 0 40px rgba(255, 80, 0, 0.6);
+}
+
+.combo-bonus {
+  font-family: var(--font-tech);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--neon-cyan);
+  letter-spacing: 1px;
+}
+
+/* --- WEAPON SELECTOR & EQUIPMENT HUD --- */
+.arsenal-selector {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.weapon-slot {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 3px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #8899aa;
+  transition: all 0.2s ease;
+}
+
+.weapon-slot.active {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--neon-cyan);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.weapon-slot .slot-key {
+  font-weight: 800;
+  color: var(--neon-cyan);
+}
+
+.tactical-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 255, 136, 0.08);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  color: var(--neon-green);
+  margin-bottom: 4px;
+}
+
+.tactical-item .item-key {
+  font-weight: 800;
+  color: #fff;
+}
+
+/* --- ADRENALINE FOCUS BULLET-TIME HUD --- */
+.adrenaline-wrapper {
+  margin-top: 6px;
+}
+
+.adrenaline-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ccddee;
+  margin-bottom: 3px;
+}
+
+.focus-status {
+  color: #8899aa;
+}
+
+.focus-status.ready {
+  color: var(--neon-cyan);
+  animation: pulse-glow 1s infinite alternate;
+}
+
+.focus-status.active {
+  color: var(--neon-gold);
+  font-weight: 800;
+}
+
+.adrenaline-bar-track {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.adrenaline-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0088cc, var(--neon-cyan));
+  box-shadow: 0 0 8px var(--neon-cyan);
+  transition: width 0.15s ease-out;
+}
+
+/* Pickup Toast Notifications */
+.score-toast.info {
+  background: rgba(0, 136, 255, 0.85);
+  border-color: #0088ff;
+  color: #fff;
+}
+
+.score-toast.success {
+  background: rgba(0, 255, 136, 0.85);
+  border-color: var(--neon-green);
+  color: #000;
+}
+

@@ -8,6 +8,8 @@ import { LevelManager } from './game/LevelManager.js';
 import { DefusalStation } from './game/DefusalStation.js';
 import { Minimap } from './game/Minimap.js';
 import { UIController } from './game/UI.js';
+import { PickupManager } from './game/Pickups.js';
+import { GrenadeManager } from './game/Grenade.js';
 
 class TacticalGame {
   constructor() {
@@ -27,6 +29,10 @@ class TacticalGame {
     this.ui = new UIController();
     this.hitboxManager = new HitboxManager();
     this.minimap = new Minimap('minimap-canvas');
+
+    // Tactical Equipment & Loot Subsystems
+    this.pickupManager = new PickupManager(this.renderer.scene);
+    this.grenadeManager = new GrenadeManager(this.renderer.scene);
 
     // Player
     this.player = new Player(this.renderer.camera, this.renderer.scene);
@@ -138,6 +144,8 @@ class TacticalGame {
     this.ui.showHUD(true);
 
     this.hitboxManager.reset(preserveScore);
+    this.pickupManager.clear();
+    this.grenadeManager.clear();
 
     // Load Level
     const data = this.levelManager.loadLevel(levelNumber, this.aiManager);
@@ -186,10 +194,10 @@ class TacticalGame {
   // Main game loop
   startLoop() {
     const loop = (time) => {
-      const delta = Math.min(0.1, (time - this.lastTime) / 1000);
+      const rawDelta = Math.min(0.1, (time - this.lastTime) / 1000);
       this.lastTime = time;
 
-      this.update(delta);
+      this.update(rawDelta);
       this.renderer.render();
 
       requestAnimationFrame(loop);
@@ -197,48 +205,72 @@ class TacticalGame {
     requestAnimationFrame(loop);
   }
 
-  update(delta) {
+  update(rawDelta) {
     if (this.state === 'PLAYING') {
-      // 1. Player Update
-      this.player.update(delta, this.input, this.levelManager.colliders);
+      // Time Dilation for Bullet-Time Adrenaline Focus
+      const timeScale = this.player.isBulletTime ? 0.35 : 1.0;
+      const gameDelta = rawDelta * timeScale;
 
-      // 2. Shooting
+      // 1. Player Update (Player controls remain fluid, world slows)
+      this.player.update(rawDelta, this.input, this.levelManager.colliders, this.grenadeManager);
+
+      // 2. Shooting & Combos
       if (this.input.mouseButtons[0]) {
         this.player.shoot(() => {
           const hitResult = this.hitboxManager.fireRaycast(
             this.renderer.camera,
             this.enemies,
             this.levelManager.colliders,
-            this.renderer
+            this.renderer,
+            this.player.activeWeapon
           );
 
           if (hitResult) {
             if (hitResult.type === 'headshot') {
               this.ui.triggerHitmarker(true);
-              this.ui.showScoreToast('+15 CRITICAL HEADSHOT!', 'headshot');
+
+              if (hitResult.comboCount > 1) {
+                this.ui.triggerCombo(hitResult.comboCount, hitResult.points);
+              } else {
+                this.ui.showScoreToast(`+${hitResult.points} CRITICAL HEADSHOT!`, 'headshot');
+              }
+
+              if (hitResult.isStealth) {
+                this.ui.showScoreToast('+25 SILENT ASSASSIN', 'success');
+              }
             } else if (hitResult.type === 'body') {
               this.ui.triggerHitmarker(false);
-              this.ui.showScoreToast('+5 BODY HIT', 'body');
+              this.ui.showScoreToast(`+${hitResult.points} BODY HIT`, 'body');
+            }
+
+            // Spawn Loot Drop on Enemy Death
+            if (hitResult.enemyDied && hitResult.enemyPos) {
+              this.pickupManager.spawnDrop(hitResult.enemyPos);
             }
           }
         });
       }
 
-      // 3. Enemy AI & Enemy attack damage (-3 points penalty)
-      this.aiManager.update(delta, this.player, () => {
-        // Enemy shot operative
-        const penalty = this.hitboxManager.registerPlayerHit();
+      // 3. Enemy AI & Attack damage
+      this.aiManager.update(gameDelta, this.player, () => {
+        this.hitboxManager.registerPlayerHit();
         this.ui.flashDamage();
         this.ui.showScoreToast('-3 HIT TAKEN!', 'penalty');
 
         if (this.player.isDead) {
           this.onGameOver('ALL OPERATIVE LIFELINES DEPLETED IN COMBAT');
         }
-      });
+      }, this.grenadeManager);
 
-      // 4. Bomb Update
+      // 4. Equipment, Grenades & Pickups
+      this.grenadeManager.update(gameDelta, this.enemies);
+      this.pickupManager.update(gameDelta, this.player, this.ui, this.renderer);
+      this.levelManager.update(gameDelta);
+      this.hitboxManager.update(rawDelta);
+
+      // 5. Bomb Update
       if (this.bomb) {
-        this.bomb.update(delta);
+        this.bomb.update(gameDelta);
         if (this.bomb.isDetonated) {
           this.onGameOver('BOMB DETONATED! MISSION FAILED.');
         }
@@ -251,22 +283,23 @@ class TacticalGame {
         }
       }
 
-      // 5. Radar Minimap
+      // 6. Radar Minimap
       this.minimap.render(this.player, this.enemies, this.bomb);
 
-      // 6. HUD View & 3D Waypoint Tracking
+      // 7. HUD View & 3D Waypoint Tracking
       this.ui.update(
         this.player,
         this.bomb,
         this.hitboxManager.score,
         this.currentLevel,
         this.levelNames,
-        this.renderer.camera
+        this.renderer.camera,
+        this.enemies
       );
     } else if (this.state === 'DEFUSING') {
       // Update bomb ticking inside defusal modal
       if (this.bomb) {
-        this.bomb.update(delta);
+        this.bomb.update(rawDelta);
         this.defusalStation.update(this.bomb.timeRemaining);
         if (this.bomb.isDetonated) {
           this.defusalStation.close();
@@ -282,7 +315,7 @@ class TacticalGame {
     }
 
     // Update particles and rain
-    this.renderer.update(delta, this.player ? this.player.position : null);
+    this.renderer.update(rawDelta, this.player ? this.player.position : null);
 
     // End frame input pulses
     this.input.endFrame();
@@ -293,3 +326,4 @@ class TacticalGame {
 window.addEventListener('DOMContentLoaded', () => {
   new TacticalGame();
 });
+

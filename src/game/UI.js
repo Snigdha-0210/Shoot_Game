@@ -9,9 +9,22 @@ export class UIController {
     this.bombTimer = document.getElementById('hud-bomb-timer');
     this.bombDist = document.getElementById('hud-bomb-dist');
     this.scoreVal = document.getElementById('hud-score');
+
+    // Weapon & Ammo
+    this.weaponSlot1 = document.getElementById('weapon-slot-1');
+    this.weaponSlot2 = document.getElementById('weapon-slot-2');
+    this.weaponName = document.getElementById('hud-weapon-name');
+    this.weaponCaliber = document.getElementById('hud-weapon-caliber');
     this.ammoClip = document.getElementById('hud-ammo-clip');
     this.ammoReserve = document.getElementById('hud-ammo-reserve');
     this.reloadPrompt = document.getElementById('hud-reload-prompt');
+
+    // Equipment & Adrenaline
+    this.smokeCount = document.getElementById('hud-smoke-count');
+    this.adrenalineBar = document.getElementById('hud-adrenaline-bar');
+    this.focusStatus = document.getElementById('hud-focus-status');
+
+    // Health & Lifelines
     this.healthBar = document.getElementById('hud-health-bar');
     this.healthNum = document.getElementById('hud-health-num');
     this.noiseBar = document.getElementById('hud-noise-bar');
@@ -19,6 +32,16 @@ export class UIController {
     this.stanceBadge = document.getElementById('hud-stance');
     this.interactionPrompt = document.getElementById('hud-interaction-prompt') || document.getElementById('interaction-prompt');
     this.scorePopups = document.getElementById('score-popups');
+
+    // Boss HUD (Level 4)
+    this.bossHud = document.getElementById('boss-hud');
+    this.bossShieldFill = document.getElementById('boss-shield-fill');
+    this.bossHealthFill = document.getElementById('boss-health-fill');
+
+    // Combo Banner
+    this.comboBanner = document.getElementById('combo-banner');
+    this.comboText = document.getElementById('combo-text');
+    this.comboBonus = document.getElementById('combo-bonus');
 
     // Lifeline icons
     this.lifePlates = [
@@ -71,7 +94,7 @@ export class UIController {
   }
 
   // Update HUD every frame
-  update(player, bomb, score, currentLevel, levelNames, camera) {
+  update(player, bomb, score, currentLevel, levelNames, camera, enemies = []) {
     if (!player) return;
 
     // Level Header
@@ -81,7 +104,58 @@ export class UIController {
     // Score
     this.scoreVal.textContent = String(score).padStart(4, '0');
 
-    // Bomb Timer, Distance & 3D Waypoint Tracking
+    // 1. Weapon Arsenal Slots & Ammo Info
+    if (player.activeWeapon === 'primary') {
+      this.weaponSlot1.classList.add('active');
+      this.weaponSlot2.classList.remove('active');
+      this.weaponName.textContent = 'M4A1-S CQB';
+      this.weaponCaliber.textContent = '5.56 NATO SUPPRESSED';
+    } else {
+      this.weaponSlot1.classList.remove('active');
+      this.weaponSlot2.classList.add('active');
+      this.weaponName.textContent = 'USP-45 TACTICAL';
+      this.weaponCaliber.textContent = '.45 ACP SUPPRESSED';
+    }
+
+    const curWep = player.curWeapon;
+    this.ammoClip.textContent = curWep.clip;
+    this.ammoReserve.textContent = curWep.reserve;
+    if (curWep.clip <= 3 && !player.isReloading && curWep.reserve > 0) {
+      this.reloadPrompt.classList.remove('hidden');
+    } else {
+      this.reloadPrompt.classList.add('hidden');
+    }
+
+    // 2. Equipment & Smoke Grenades
+    this.smokeCount.textContent = `SMOKE GRENADE (${player.smokeGrenades})`;
+
+    // 3. Adrenaline Focus Bullet-Time Meter
+    const adrPct = Math.max(0, Math.min(100, player.adrenaline));
+    this.adrenalineBar.style.width = `${adrPct}%`;
+    if (player.isBulletTime) {
+      this.focusStatus.textContent = 'ACTIVE (SLOW-MO)';
+      this.focusStatus.className = 'focus-status active';
+    } else if (player.adrenaline >= 30) {
+      this.focusStatus.textContent = 'READY [SPACE]';
+      this.focusStatus.className = 'focus-status ready';
+    } else {
+      this.focusStatus.textContent = 'RECHARGING...';
+      this.focusStatus.className = 'focus-status';
+    }
+
+    // 4. Boss HUD (Level 4 Citadel Boss)
+    const boss = enemies.find(e => e.archetype === 'boss' && !e.isDead);
+    if (boss && currentLevel === 4) {
+      this.bossHud.classList.remove('hidden');
+      const shieldPct = Math.max(0, (boss.shield / boss.maxShield) * 100);
+      const hpPct = Math.max(0, (boss.health / boss.maxHealth) * 100);
+      this.bossShieldFill.style.width = `${shieldPct}%`;
+      this.bossHealthFill.style.width = `${hpPct}%`;
+    } else {
+      this.bossHud.classList.add('hidden');
+    }
+
+    // 5. Bomb Timer, Distance & 3D Waypoint Tracking
     if (bomb) {
       const t = Math.max(0, bomb.timeRemaining);
       const mins = Math.floor(t / 60);
@@ -102,7 +176,7 @@ export class UIController {
       // --- 3D SCREEN-SPACE WAYPOINT PROJECTION ---
       if (this.bombWaypoint && !bomb.isDefused && camera) {
         const bombWorldPos = bomb.position.clone();
-        bombWorldPos.y += 2.2; // Position tag at the floating diamond height
+        bombWorldPos.y += 2.2;
 
         const screenVec = bombWorldPos.project(camera);
         const isBehind = screenVec.z > 1;
@@ -116,14 +190,12 @@ export class UIController {
         this.waypointDistText.textContent = `${dist.toFixed(1)}m`;
 
         if (!isBehind && screenX > 60 && screenX < window.innerWidth - 60 && screenY > 60 && screenY < window.innerHeight - 60) {
-          // Inside Screen Viewport
           this.bombWaypoint.style.left = `${screenX}px`;
           this.bombWaypoint.style.top = `${screenY}px`;
           this.bombWaypoint.style.transform = 'translate(-50%, -100%)';
           this.waypointArrow.classList.add('hidden');
           this.bombWaypoint.classList.remove('hidden');
         } else {
-          // Off-Screen or Behind: Clamp to viewport boundary with directional pointer arrow
           let dirX = screenVec.x;
           let dirY = screenVec.y;
           if (isBehind) {
@@ -150,21 +222,11 @@ export class UIController {
       if (this.bombWaypoint) this.bombWaypoint.classList.add('hidden');
     }
 
-    // Ammo
-    this.ammoClip.textContent = player.ammoClip;
-    this.ammoReserve.textContent = player.ammoReserve;
-    if (player.ammoClip <= 5 && !player.isReloading && player.ammoReserve > 0) {
-      this.reloadPrompt.classList.remove('hidden');
-    } else {
-      this.reloadPrompt.classList.add('hidden');
-    }
-
-    // Health
+    // 6. Health & Lifelines
     const hpPct = Math.max(0, (player.health / player.maxHealth) * 100);
     this.healthBar.style.width = `${hpPct}%`;
     this.healthNum.textContent = `${Math.round(hpPct)}%`;
 
-    // Lifelines (Armor Plates)
     for (let i = 0; i < 3; i++) {
       if (i < player.lifelines) {
         this.lifePlates[i].classList.add('active');
@@ -173,7 +235,7 @@ export class UIController {
       }
     }
 
-    // Stealth Noise Meter
+    // 7. Stealth Noise Meter
     const noisePct = Math.min(100, Math.round(player.noiseLevel * 100));
     this.noiseBar.style.width = `${noisePct}%`;
     if (player.isCrouching) {
@@ -191,6 +253,22 @@ export class UIController {
     }
   }
 
+  // Trigger Killstreak Combo Banner
+  triggerCombo(comboCount, points) {
+    if (comboCount <= 1) return;
+
+    this.comboText.textContent = comboCount >= 4 ? `UNSTOPPABLE x${comboCount}!` : `COMBO x${comboCount}!`;
+    this.comboBonus.textContent = `+${points} PTS`;
+    this.comboBanner.classList.remove('hidden');
+    this.comboBanner.classList.add('pulse');
+
+    clearTimeout(this.comboTimeout);
+    this.comboTimeout = setTimeout(() => {
+      this.comboBanner.classList.add('hidden');
+      this.comboBanner.classList.remove('pulse');
+    }, 1800);
+  }
+
   // Hitmarker & Critical Headshot Marker
   triggerHitmarker(isHeadshot) {
     if (isHeadshot) {
@@ -202,8 +280,8 @@ export class UIController {
     }
   }
 
-  // Floating score toast
-  showScoreToast(text, type = 'body') {
+  // Generic Notification Toast
+  showNotification(text, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `score-toast ${type}`;
     toast.textContent = text;
@@ -213,7 +291,12 @@ export class UIController {
       if (toast.parentNode) {
         toast.parentNode.removeChild(toast);
       }
-    }, 800);
+    }, 1200);
+  }
+
+  // Floating score toast
+  showScoreToast(text, type = 'body') {
+    this.showNotification(text, type);
   }
 
   // Flash damage vignette on player hit
@@ -270,3 +353,4 @@ export class UIController {
     this.pauseScreen.classList.add('hidden');
   }
 }
+

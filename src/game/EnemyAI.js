@@ -19,7 +19,7 @@ export class EnemyAIManager {
   }
 
   // Update all AI behaviors
-  update(delta, player, onPlayerHitCallback) {
+  update(delta, player, onPlayerHitCallback, grenadeManager = null) {
     const playerPos = player.position;
 
     for (const enemy of this.enemies) {
@@ -31,8 +31,14 @@ export class EnemyAIManager {
       const enemyPos = enemy.root.position;
       const distToPlayer = enemyPos.distanceTo(playerPos);
 
+      // Check if blinded by smoke cloud
+      if (enemy.isBlindedBySmoke) {
+        enemy.update(delta, playerPos);
+        continue;
+      }
+
       // 1. Perception Check (Vision + Hearing)
-      const canSee = this.checkVision(enemy, player);
+      const canSee = this.checkVision(enemy, player, grenadeManager);
       const canHear = this.checkHearing(enemy, player, distToPlayer);
 
       // State transitions
@@ -61,28 +67,33 @@ export class EnemyAIManager {
   }
 
   // Check Line of Sight and Vision Cone
-  checkVision(enemy, player) {
+  checkVision(enemy, player, grenadeManager = null) {
     const enemyPos = enemy.root.position;
     const playerPos = player.position;
     const dist = enemyPos.distanceTo(playerPos);
 
-    // Max vision range (reduced if player is crouching in stealth)
-    const maxDist = player.isCrouching ? 15 : 28;
-    if (dist > maxDist) return false;
+    // Max vision range (snipers have extended 50m sightline)
+    const baseDist = enemy.archetype === 'sniper' ? 50 : (player.isCrouching ? 15 : 28);
+    if (dist > baseDist) return false;
 
-    // Check FOV Angle (forward is in Z+ direction relative to enemy orientation)
+    // Check FOV Angle (Snipers have 120-degree awareness)
     const forward = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), enemy.root.rotation.y);
     const toPlayer = new THREE.Vector3().subVectors(playerPos, enemyPos).normalize();
     const dot = forward.dot(toPlayer);
 
-    // 100-degree field of view (cos(50°) ≈ 0.64)
-    if (dot < 0.60 && dist > 3.0) return false;
+    const minDot = enemy.archetype === 'sniper' ? 0.45 : 0.60;
+    if (dot < minDot && dist > 3.0) return false;
 
     // Raycast obstacle check
     const startRay = new THREE.Vector3(enemyPos.x, enemyPos.y + 1.5, enemyPos.z);
     const targetRay = new THREE.Vector3(playerPos.x, player.currentHeight || 1.5, playerPos.z);
-    const dir = new THREE.Vector3().subVectors(targetRay, startRay).normalize();
 
+    // Check smoke cloud blockage
+    if (grenadeManager && grenadeManager.isLineOfSightBlocked(startRay, targetRay)) {
+      return false;
+    }
+
+    const dir = new THREE.Vector3().subVectors(targetRay, startRay).normalize();
     this.raycaster.set(startRay, dir);
     this.raycaster.far = dist;
 
@@ -103,27 +114,55 @@ export class EnemyAIManager {
     return dist <= hearingRadius;
   }
 
-  // Combat: aim, shoot, and damage player
+  // Combat: aim, shoot, and damage player based on Archetype
   handleCombatState(enemy, player, dist, delta, onPlayerHitCallback) {
     // Face player
     const dx = player.position.x - enemy.root.position.x;
     const dz = player.position.z - enemy.root.position.z;
-    enemy.root.rotation.y = Math.atan2(dx, dz);
+    const targetAngle = Math.atan2(dx, dz);
+    enemy.root.rotation.y = targetAngle;
 
-    // Shoot bursts
-    if (enemy.shootCooldown <= 0 && !player.isDead) {
-      enemy.shootCooldown = 0.7 + Math.random() * 0.4;
-      audio.playEnemyGunfire(dist);
+    // Advance if Juggernaut or Scout
+    if (enemy.archetype === 'juggernaut' || (enemy.archetype === 'scout' && dist > 8)) {
+      const moveDir = new THREE.Vector3(dx, 0, dz).normalize();
+      enemy.root.position.addScaledVector(moveDir, enemy.speed * 0.6 * delta);
+    }
 
-      // Hit probability calculation based on distance and player movement
-      let hitChance = Math.max(0.2, 0.85 - dist * 0.025);
-      if (player.isCrouching) hitChance *= 0.7; // Crouch provides cover/smaller profile
-      if (player.velocity.lengthSq() > 10) hitChance *= 0.75; // Harder to hit moving player
+    // -------------------------------------------------------------
+    // Archetype-Specific Shooting Behavior
+    // -------------------------------------------------------------
+    if (enemy.archetype === 'sniper') {
+      // Sniper Laser Lock-on
+      enemy.aimTime = (enemy.aimTime || 0) + delta;
 
-      if (Math.random() < hitChance) {
-        player.takeDamage(15);
+      if (enemy.aimTime >= enemy.aimMaxTime && enemy.shootCooldown <= 0 && !player.isDead) {
+        enemy.shootCooldown = enemy.burstDelay;
+        enemy.aimTime = 0;
+        audio.playSniperShot(dist);
+
+        // Devastating sniper hit
+        player.takeDamage(enemy.damage);
         if (onPlayerHitCallback) {
           onPlayerHitCallback();
+        }
+      }
+    } else {
+      // Standard / Juggernaut / Boss Burst Firing
+      if (enemy.shootCooldown <= 0 && !player.isDead) {
+        enemy.shootCooldown = enemy.burstDelay + Math.random() * 0.3;
+        audio.playEnemyGunfire(dist);
+
+        // Hit probability calculation
+        let hitChance = Math.max(0.2, 0.85 - dist * 0.025);
+        if (player.isCrouching) hitChance *= 0.7;
+        if (player.velocity.lengthSq() > 10) hitChance *= 0.75;
+        if (player.isBulletTime) hitChance *= 0.4; // Bullet-Time evasion bonus!
+
+        if (Math.random() < hitChance) {
+          player.takeDamage(enemy.damage);
+          if (onPlayerHitCallback) {
+            onPlayerHitCallback();
+          }
         }
       }
     }
@@ -142,7 +181,6 @@ export class EnemyAIManager {
     const dist = dir.length();
 
     if (dist < 1.5) {
-      // Reached investigation point, found nothing
       enemy.state = 'patrol';
       enemy.investigateTarget = null;
       return;
@@ -165,7 +203,6 @@ export class EnemyAIManager {
     const dist = dir.length();
 
     if (dist < 0.8) {
-      // Move to next waypoint
       enemy.currentWaypointIdx = (enemy.currentWaypointIdx + 1) % enemy.waypoints.length;
       return;
     }
@@ -176,3 +213,4 @@ export class EnemyAIManager {
     enemy.root.position.z += dir.z * enemy.speed * delta;
   }
 }
+
