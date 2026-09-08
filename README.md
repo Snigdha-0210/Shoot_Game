@@ -3,17 +3,24 @@
 # 🎯 OPERATION: DEFUSE
 ### Tactical 3D Stealth FPS & Multi-Level Bomb Disarmament Simulation
 
+[![Play Live Demo](https://img.shields.io/badge/🎮_PLAY_LIVE_DEMO-ONLINE-00ff88?style=for-the-badge&logo=google-chrome&logoColor=white)](https://snigdha-0210.github.io/Shoot_Game/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Active-00f0ff?style=for-the-badge&logo=github&logoColor=white)](https://snigdha-0210.github.io/Shoot_Game/)
 [![Three.js](https://img.shields.io/badge/Three.js-r170-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ESM-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![License](https://img.shields.io/badge/License-MIT-00f0ff?style=for-the-badge)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Playable%20Alpha-00ff88?style=for-the-badge)]()
+[![License](https://img.shields.io/badge/License-MIT-ffd700?style=for-the-badge)](LICENSE)
+
+<br/>
+
+## 🕹️ **[👉 CLICK HERE TO PLAY THE GAME ONLINE NOW 👈](https://snigdha-0210.github.io/Shoot_Game/)**
+**Live URL:** [https://snigdha-0210.github.io/Shoot_Game/](https://snigdha-0210.github.io/Shoot_Game/)
+
+<br/>
 
 <p align="center">
   <em>An atmospheric, tactical first-person stealth shooter and bomb defusal game built from the ground up with Three.js and Vite. Infiltrate hostile enemy sectors under cover of darkness, neutralize armed guards with precision headshots, track down high-yield explosives, and disarm tricky multi-wire bombs before the timer detonates.</em>
 </p>
 
-[🎮 Features](#-key-features) • [🕹️ Controls](#-controls--keybindings) • [🏗️ Architecture](#-system-architecture) • [🗺️ Levels](#-4-progressive-mission-sectors) • [✂️ Defusal Guide](#-field-manual--wire-defusal-solutions) • [🚀 Quick Start](#-quick-start--installation)
+[🎮 Play Online](https://snigdha-0210.github.io/Shoot_Game/) • [🌟 Features](#-key-features) • [🕹️ Controls](#-controls--keybindings) • [🏗️ Architecture](#-system-architecture) • [🗺️ Levels](#-4-progressive-mission-sectors) • [✂️ Defusal Guide](#-field-manual--wire-defusal-solutions) • [🚀 Quick Start](#-quick-start--installation)
 
 ---
 

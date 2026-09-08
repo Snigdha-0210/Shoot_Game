@@ -1,5 +1,6 @@
 # 📋 Project Updates & Engineering Log
 **Project:** OPERATION: DEFUSE — Tactical 3D Stealth FPS & Multi-Level Bomb Disarmament Simulation  
+**Live Playable Demo:** [https://snigdha-0210.github.io/Shoot_Game/](https://snigdha-0210.github.io/Shoot_Game/)  
 **Repository:** [https://github.com/Snigdha-0210/Shoot_Game](https://github.com/Snigdha-0210/Shoot_Game)  
 **Author:** Snigdha-0210  
 **Last Updated:** September 9, 2026
