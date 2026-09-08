@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPERATION: DEFUSE — Tactical 3D Stealth FPS</title>
+  <meta name="description" content="Infiltrate hostile enemy bases, neutralize guards with headshots, and defuse tricky multi-wire bombs across 4 dangerous levels.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <!-- 3D Canvas Container -->
+  <div id="game-container"></div>
+
+  <!-- Tactical HUD Overlay -->
+  <div id="hud" class="hud-layer hidden">
+    <!-- Top Tactical Bar -->
+    <header class="hud-top">
+      <div class="hud-top-left">
+        <div class="mission-tag">MISSION OBJECTIVE</div>
+        <div id="hud-objective-text" class="objective-title">LOCATE & DEFUSE THE BOMB</div>
+        <div class="level-indicator"><span id="hud-level-badge">LEVEL 1/4</span> : <span id="hud-level-name">INFILTRATION YARD</span></div>
+      </div>
+
+      <div class="hud-top-center">
+        <div class="bomb-timer-container">
+          <div class="timer-label"><span class="pulse-dot"></span> BOMB DETONATION IN</div>
+          <div id="hud-bomb-timer" class="digital-clock">01:30.00</div>
+          <div class="bomb-dist-bar"><span id="hud-bomb-dist">DISTANCE: 45.2m</span></div>
+        </div>
+      </div>
+
+      <div class="hud-top-right">
+        <div class="score-container">
+          <div class="score-label">TACTICAL SCORE</div>
+          <div id="hud-score" class="score-value">0000</div>
+          <div class="score-breakdown">
+            <span class="hs-tag">HEADSHOT: +15</span> | 
+            <span class="bs-tag">BODY: +5</span> | 
+            <span class="pen-tag">HIT: -3</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Crosshair & Hitmarkers -->
+    <div id="crosshair-container">
+      <div id="crosshair" class="crosshair-default">
+        <div class="ch-line ch-top"></div>
+        <div class="ch-line ch-bottom"></div>
+        <div class="ch-line ch-left"></div>
+        <div class="ch-line ch-right"></div>
+        <div class="ch-dot"></div>
+      </div>
+      <div id="hitmarker" class="hitmarker hidden">
+        <div class="hm-line hm-tl"></div>
+        <div class="hm-line hm-tr"></div>
+        <div class="hm-line hm-bl"></div>
+        <div class="hm-line hm-br"></div>
+      </div>
+      <div id="headshot-marker" class="headshot-marker hidden">
+        <span class="hs-text">CRITICAL HEADSHOT +15</span>
+      </div>
+    </div>
+
+    <!-- 3D In-World Bomb Waypoint HUD Tag -->
+    <div id="bomb-screen-waypoint" class="bomb-screen-waypoint hidden">
+      <div class="waypoint-diamond">★</div>
+      <div class="waypoint-info">
+        <span class="waypoint-title">DEFUSE BOMB</span>
+        <span id="waypoint-dist-text" class="waypoint-dist">32.4m</span>
+      </div>
+      <div id="waypoint-arrow" class="waypoint-arrow hidden">▼</div>
+    </div>
+
+    <!-- Directional Damage Flash -->
+    <div id="damage-vignette" class="damage-vignette"></div>
+    <div id="damage-indicator" class="damage-indicator"></div>
+
+    <!-- Floating Score Popups Container -->
+    <div id="score-popups" class="score-popups-layer"></div>
+
+    <!-- Center Interaction Prompt -->
+    <div id="interaction-prompt" class="interaction-prompt hidden">
+      <div class="key-icon">[E]</div>
+      <div class="prompt-text">INTERACT & DEFUSE BOMB</div>
+    </div>
+
+    <!-- Bottom Tactical Status -->
+    <footer class="hud-bottom">
+      <!-- Left: Health, Armor Lifelines, Stealth Noise -->
+      <div class="hud-bottom-left">
+        <div class="lifelines-wrapper">
+          <div class="lifeline-title">TACTICAL LIFELINES (ARMOR PLATES)</div>
+          <div id="lifelines-container" class="lifelines-icons">
+            <div class="life-plate active" id="life-1"><span class="plate-icon">🛡️</span> LIFE 1</div>
+            <div class="life-plate active" id="life-2"><span class="plate-icon">🛡️</span> LIFE 2</div>
+            <div class="life-plate active" id="life-3"><span class="plate-icon">🛡️</span> LIFE 3</div>
+          </div>
+        </div>
+
+        <div class="health-wrapper">
+          <div class="health-meta">
+            <span class="health-label">OPERATIVE INTEGRITY</span>
+            <span id="hud-health-num" class="health-num">100%</span>
+          </div>
+          <div class="health-bar-track">
+            <div id="hud-health-bar" class="health-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <div class="noise-meter-wrapper">
+          <div class="noise-meta">
+            <span>ACOUSTIC STEALTH NOISE</span>
+            <span id="hud-noise-status" class="noise-status silent">SILENT (CROUCH)</span>
+          </div>
+          <div class="noise-bar-track">
+            <div id="hud-noise-bar" class="noise-bar-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Controls reminder / Stance -->
+      <div class="hud-bottom-center">
+        <div class="stance-indicator">
+          <span id="hud-stance" class="stance-badge">STAND</span>
+          <span class="stance-tip">[C] CROUCH • [SHIFT] SPRINT • [RMB] ADS • [F] LIGHT</span>
+        </div>
+      </div>
+
+      <!-- Right: Radar Minimap & Ammo -->
+      <div class="hud-bottom-right">
+        <div class="minimap-wrapper">
+          <div class="minimap-header">TACTICAL RADAR</div>
+          <canvas id="minimap-canvas" width="160" height="160"></canvas>
+          <div class="radar-legend">
+            <span class="legend-player">● YOU</span>
+            <span class="legend-enemy">● ENEMY</span>
+            <span class="legend-bomb">★ BOMB</span>
+          </div>
+        </div>
+
+        <div class="ammo-wrapper">
+          <div class="weapon-info">
+            <span class="weapon-name">M4A1-S CQB</span>
+            <span class="weapon-caliber">5.56 NATO SUPPRESSED</span>
+          </div>
+          <div class="ammo-count">
+            <span id="hud-ammo-clip" class="ammo-clip">30</span>
+            <span class="ammo-slash">/</span>
+            <span id="hud-ammo-reserve" class="ammo-reserve">90</span>
+          </div>
+          <div id="hud-reload-prompt" class="reload-prompt hidden">[R] RELOAD</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Close-Up Interactive Bomb Defusal Station Overlay -->
+  <div id="defusal-modal" class="modal-layer hidden">
+    <div class="defusal-station-card">
+      <div class="station-header">
+        <div class="station-title">
+          <span class="warning-icon">⚠️</span>
+          <span>DISARMAMENT PROTOCOL — FIELD TERMINAL</span>
+        </div>
+        <div class="station-timer">
+          <span>TIME REMAINING: </span>
+          <span id="defusal-timer" class="defusal-timer-clock">01:30.00</span>
+        </div>
+        <button id="btn-defusal-exit" class="btn-defusal-close" title="Exit to Combat (Esc)">EXIT [ESC]</button>
+      </div>
+
+      <div class="station-body">
+        <!-- Bomb Unit Visual Panel -->
+        <div class="bomb-device-panel">
+          <div class="bomb-chassis">
+            <div class="chassis-top">
+              <div class="serial-plate" id="bomb-serial">SERIAL: 8K4-T9</div>
+              <div class="led-bank">
+                <div class="status-led" id="led-red" title="Detonation Trigger"></div>
+                <div class="status-led" id="led-green" title="Circuit Status"></div>
+                <div class="status-led" id="led-blue" title="Arming Relay"></div>
+                <div class="status-led" id="led-yellow" title="Logic Bypass"></div>
+              </div>
+            </div>
+
+            <!-- Wire Cutting Station -->
+            <div class="wire-harness-box" id="wire-harness">
+              <!-- Dynamically generated wires injected by DefusalStation.js -->
+            </div>
+
+            <div class="chassis-bottom">
+              <div class="chip-circuit">
+                <div class="microchip">
+                  <div class="chip-core">DEFUSE LOGIC</div>
+                  <div class="chip-pins"></div>
+                </div>
+                <div class="circuit-status" id="defusal-status-msg">READY TO CUT. SELECT WIRE CAREFULLY.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Field Manual / Tactical Wrist-PDA Rules -->
+        <div class="field-manual-panel">
+          <div class="manual-header">
+            <span class="manual-icon">📋</span>
+            <span>OPERATIVE FIELD MANUAL — DEFUSAL RULES</span>
+          </div>
+          <div class="manual-level-tag" id="manual-level-title">LEVEL 1: STANDARD 3-WIRE C4</div>
+          <div class="manual-content" id="manual-rules-content">
+            <!-- Dynamically populated rules based on level & bomb properties -->
+          </div>
+          <div class="manual-warning">
+            ⚠️ <strong>CAUTION:</strong> Cutting the wrong wire results in an immediate <strong>-20s time penalty</strong> or circuit overload!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start / Main Menu Screen -->
+  <div id="start-screen" class="modal-layer menu-layer">
+    <div class="menu-card">
+      <div class="menu-glitch-title" data-text="OPERATION: DEFUSE">OPERATION: DEFUSE</div>
+      <div class="menu-subtitle">TACTICAL 3D STEALTH SHOOTER & BOMB DISARMAMENT</div>
+
+      <div class="briefing-box">
+        <h3>MISSION BRIEFING:</h3>
+        <p>Hostile mercenary forces have planted high-yield explosive devices across <strong>4 classified enemy sectors</strong>. Infiltrate under darkness, neutralize patrolling guards with precision, track down the bomb coordinates, and cut the correct sequence of wires before detonation.</p>
+        
+        <div class="rules-grid">
+          <div class="rule-card">
+            <div class="rc-icon">🎯</div>
+            <div class="rc-title">HEADSHOT</div>
+            <div class="rc-pts score-head">+15 PTS</div>
+            <div class="rc-desc">Instant kill & critical score</div>
+          </div>
+          <div class="rule-card">
+            <div class="rc-icon">💥</div>
+            <div class="rc-title">BODY SHOT</div>
+            <div class="rc-pts score-body">+5 PTS</div>
+            <div class="rc-desc">Staggers and damages target</div>
+          </div>
+          <div class="rule-card">
+            <div class="rc-icon">🩸</div>
+            <div class="rc-title">ENEMY HIT</div>
+            <div class="rc-pts score-pen">-3 PTS</div>
+            <div class="rc-desc">Reduces health & armor</div>
+          </div>
+          <div class="rule-card">
+            <div class="rc-icon">🛡️</div>
+            <div class="rc-title">3 LIFELINES</div>
+            <div class="rc-pts">3 LIVES</div>
+            <div class="rc-desc">Depletion leads to Game Over</div>
+          </div>
+        </div>
+
+        <div class="controls-overview">
+          <span class="ctrl-chip"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</span>
+          <span class="ctrl-chip"><kbd>MOUSE</kbd> Aim</span>
+          <span class="ctrl-chip"><kbd>LMB</kbd> Shoot</span>
+          <span class="ctrl-chip"><kbd>RMB</kbd> ADS Aim</span>
+          <span class="ctrl-chip"><kbd>C</kbd> / <kbd>CTRL</kbd> Crouch (Stealth)</span>
+          <span class="ctrl-chip"><kbd>SHIFT</kbd> Sprint</span>
+          <span class="ctrl-chip"><kbd>R</kbd> Reload</span>
+          <span class="ctrl-chip"><kbd>F</kbd> Flashlight</span>
+          <span class="ctrl-chip"><kbd>E</kbd> Defuse Bomb</span>
+        </div>
+      </div>
+
+      <button id="btn-start-game" class="btn-tactical btn-glitch">
+        <span class="btn-text">INITIALIZE INFILTRATION</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Level Complete Screen -->
+  <div id="level-complete-screen" class="modal-layer menu-layer hidden">
+    <div class="menu-card victory-theme">
+      <div class="menu-glitch-title" data-text="SECTOR SECURED">SECTOR SECURED</div>
+      <div class="menu-subtitle" id="complete-level-title">LEVEL 1 DEFUSED SUCCESSFULLY</div>
+
+      <div class="stats-summary-card">
+        <div class="stat-row">
+          <span>Enemies Neutralized:</span>
+          <strong id="stat-enemies-killed">0</strong>
+        </div>
+        <div class="stat-row">
+          <span>Headshot Precision Kills (+15):</span>
+          <strong id="stat-headshots" class="score-head">0</strong>
+        </div>
+        <div class="stat-row">
+          <span>Body Hits Landed (+5):</span>
+          <strong id="stat-bodyshots" class="score-body">0</strong>
+        </div>
+        <div class="stat-row">
+          <span>Times Hit by Enemy (-3):</span>
+          <strong id="stat-hits-taken" class="score-pen">0</strong>
+        </div>
+        <div class="stat-row">
+          <span>Bomb Defusal Bonus:</span>
+          <strong class="score-head">+100 PTS</strong>
+        </div>
+        <div class="stat-row highlight">
+          <span>TOTAL TACTICAL SCORE:</span>
+          <strong id="stat-total-score" class="score-highlight">0000</strong>
+        </div>
+      </div>
+
+      <button id="btn-next-level" class="btn-tactical btn-glitch">
+        <span class="btn-text">INFILTRATE NEXT SECTOR →</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="game-over-screen" class="modal-layer menu-layer hidden">
+    <div class="menu-card defeat-theme">
+      <div class="menu-glitch-title red" data-text="MISSION FAILED">MISSION FAILED</div>
+      <div class="menu-subtitle" id="game-over-reason">ALL OPERATIVE LIFELINES DEPLETED</div>
+
+      <div class="stats-summary-card">
+        <div class="stat-row">
+          <span>Final Tactical Score:</span>
+          <strong id="stat-gameover-score" class="score-highlight">0000</strong>
+        </div>
+        <div class="stat-row">
+          <span>Sector Reached:</span>
+          <strong id="stat-gameover-level">Level 1</strong>
+        </div>
+      </div>
+
+      <button id="btn-retry-game" class="btn-tactical btn-retry">
+        <span class="btn-text">RETRY MISSION</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Grand Victory Screen (All 4 Levels Cleared) -->
+  <div id="victory-screen" class="modal-layer menu-layer hidden">
+    <div class="menu-card victory-all-theme">
+      <div class="medal-icon">🎖️</div>
+      <div class="menu-glitch-title gold" data-text="OPERATION COMPLETE">OPERATION COMPLETE</div>
+      <div class="menu-subtitle">ALL 4 ENEMY SECTORS DEFUSED & SECURED</div>
+
+      <div class="stats-summary-card">
+        <div class="stat-row">
+          <span>Operative Rank:</span>
+          <strong id="stat-final-rank" class="score-head">MASTER SHADOW COMMANDO</strong>
+        </div>
+        <div class="stat-row">
+          <span>Total Headshots:</span>
+          <strong id="stat-final-headshots" class="score-head">0</strong>
+        </div>
+        <div class="stat-row highlight">
+          <span>FINAL GRAND SCORE:</span>
+          <strong id="stat-final-score" class="score-highlight">0000</strong>
+        </div>
+      </div>
+
+      <button id="btn-play-again" class="btn-tactical btn-glitch">
+        <span class="btn-text">PLAY AGAIN</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Pause Menu -->
+  <div id="pause-screen" class="modal-layer menu-layer hidden">
+    <div class="menu-card pause-theme">
+      <div class="menu-glitch-title" data-text="TACTICAL PAUSE">TACTICAL PAUSE</div>
+      <p class="pause-desc">Game is paused. Click Resume to return to the combat zone.</p>
+      <div class="btn-group">
+        <button id="btn-resume-game" class="btn-tactical">RESUME MISSION</button>
+        <button id="btn-restart-level" class="btn-tactical btn-secondary">RESTART LEVEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
