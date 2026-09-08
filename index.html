@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="./assets/index-QP6fLBof.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DqlqP6g3.css">
+  <script type="module" crossorigin src="./assets/index-DSuFPFXR.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DY8g4lNe.css">
 </head>
 <body>
   <!-- 3D Canvas Container -->
@@ -45,6 +45,30 @@
         </div>
       </div>
     </header>
+
+    <!-- Boss Health & Shield HUD (Level 4) -->
+    <div id="boss-hud" class="boss-hud hidden">
+      <div class="boss-title-row">
+        <span class="boss-icon">👑</span>
+        <span class="boss-name">CITADEL COMMANDER — GENERAL MALIKOV</span>
+      </div>
+      <div class="boss-bars">
+        <div class="boss-bar-track shield-track">
+          <div id="boss-shield-fill" class="boss-bar-fill shield-fill" style="width: 100%;"></div>
+          <span class="boss-bar-label">ENERGY SHIELD</span>
+        </div>
+        <div class="boss-bar-track health-track">
+          <div id="boss-health-fill" class="boss-bar-fill health-fill" style="width: 100%;"></div>
+          <span class="boss-bar-label">VITAL INTEGRITY</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kill Combo Multiplier Banner -->
+    <div id="combo-banner" class="combo-banner hidden">
+      <div id="combo-text" class="combo-text">COMBO x2!</div>
+      <div id="combo-bonus" class="combo-bonus">+30 PTS</div>
+    </div>
 
     <!-- Crosshair & Hitmarkers -->
     <div id="crosshair-container">
@@ -112,6 +136,17 @@
           </div>
         </div>
 
+        <!-- Adrenaline Bullet-Time Bar -->
+        <div class="adrenaline-wrapper">
+          <div class="adrenaline-meta">
+            <span>ADRENALINE FOCUS [SPACE]</span>
+            <span id="hud-focus-status" class="focus-status">READY</span>
+          </div>
+          <div class="adrenaline-bar-track">
+            <div id="hud-adrenaline-bar" class="adrenaline-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
         <div class="noise-meter-wrapper">
           <div class="noise-meta">
             <span>ACOUSTIC STEALTH NOISE</span>
@@ -123,11 +158,30 @@
         </div>
       </div>
 
-      <!-- Center: Controls reminder / Stance -->
+      <!-- Center: Weapon Arsenal & Tactical Equipment -->
       <div class="hud-bottom-center">
+        <!-- Weapon Slots -->
+        <div class="arsenal-selector">
+          <div id="weapon-slot-1" class="weapon-slot active">
+            <span class="slot-key">[1]</span>
+            <span class="slot-name">M4A1-S RIFLE</span>
+          </div>
+          <div id="weapon-slot-2" class="weapon-slot">
+            <span class="slot-key">[2]</span>
+            <span class="slot-name">USP-45 PISTOL</span>
+          </div>
+        </div>
+
+        <!-- Tactical Smoke Grenade Badge -->
+        <div class="tactical-item">
+          <span class="item-key">[G]</span>
+          <span class="item-icon">💨</span>
+          <span id="hud-smoke-count" class="item-name">SMOKE GRENADE (2)</span>
+        </div>
+
         <div class="stance-indicator">
           <span id="hud-stance" class="stance-badge">STAND</span>
-          <span class="stance-tip">[C] CROUCH • [SHIFT] SPRINT • [RMB] ADS • [F] LIGHT</span>
+          <span class="stance-tip">[C] CROUCH • [Q] SWAP GUN • [G] SMOKE • [SPACE] SLOW-MO</span>
         </div>
       </div>
 
@@ -145,8 +199,8 @@
 
         <div class="ammo-wrapper">
           <div class="weapon-info">
-            <span class="weapon-name">M4A1-S CQB</span>
-            <span class="weapon-caliber">5.56 NATO SUPPRESSED</span>
+            <span id="hud-weapon-name" class="weapon-name">M4A1-S CQB</span>
+            <span id="hud-weapon-caliber" class="weapon-caliber">5.56 NATO SUPPRESSED</span>
           </div>
           <div class="ammo-count">
             <span id="hud-ammo-clip" class="ammo-clip">30</span>
@@ -236,27 +290,27 @@
         <div class="rules-grid">
           <div class="rule-card">
             <div class="rc-icon">🎯</div>
-            <div class="rc-title">HEADSHOT</div>
-            <div class="rc-pts score-head">+15 PTS</div>
-            <div class="rc-desc">Instant kill & critical score</div>
+            <div class="rc-title">HEADSHOT COMBO</div>
+            <div class="rc-pts score-head">+15 PTS (x2/x3)</div>
+            <div class="rc-desc">Chained kills trigger score multipliers</div>
           </div>
           <div class="rule-card">
-            <div class="rc-icon">💥</div>
-            <div class="rc-title">BODY SHOT</div>
-            <div class="rc-pts score-body">+5 PTS</div>
-            <div class="rc-desc">Staggers and damages target</div>
+            <div class="rc-icon">🔫</div>
+            <div class="rc-title">DUAL ARSENAL</div>
+            <div class="rc-pts score-body">[1] M4A1 / [2] USP</div>
+            <div class="rc-desc">Quick-swap via [Q] in battle</div>
           </div>
           <div class="rule-card">
-            <div class="rc-icon">🩸</div>
-            <div class="rc-title">ENEMY HIT</div>
-            <div class="rc-pts score-pen">-3 PTS</div>
-            <div class="rc-desc">Reduces health & armor</div>
+            <div class="rc-icon">💨</div>
+            <div class="rc-title">SMOKE GRENADE</div>
+            <div class="rc-pts score-pen">[G] KEY</div>
+            <div class="rc-desc">Blinds enemies and creates cover</div>
           </div>
           <div class="rule-card">
-            <div class="rc-icon">🛡️</div>
-            <div class="rc-title">3 LIFELINES</div>
-            <div class="rc-pts">3 LIVES</div>
-            <div class="rc-desc">Depletion leads to Game Over</div>
+            <div class="rc-icon">⚡</div>
+            <div class="rc-title">BULLET-TIME</div>
+            <div class="rc-pts">[SPACE] FOCUS</div>
+            <div class="rc-desc">Slow-motion precision aiming</div>
           </div>
         </div>
 
@@ -265,6 +319,9 @@
           <span class="ctrl-chip"><kbd>MOUSE</kbd> Aim</span>
           <span class="ctrl-chip"><kbd>LMB</kbd> Shoot</span>
           <span class="ctrl-chip"><kbd>RMB</kbd> ADS Aim</span>
+          <span class="ctrl-chip"><kbd>Q</kbd> / <kbd>1</kbd> / <kbd>2</kbd> Swap Gun</span>
+          <span class="ctrl-chip"><kbd>G</kbd> Smoke Grenade</span>
+          <span class="ctrl-chip"><kbd>SPACE</kbd> Bullet-Time Focus</span>
           <span class="ctrl-chip"><kbd>C</kbd> / <kbd>CTRL</kbd> Crouch (Stealth)</span>
           <span class="ctrl-chip"><kbd>SHIFT</kbd> Sprint</span>
           <span class="ctrl-chip"><kbd>R</kbd> Reload</span>
