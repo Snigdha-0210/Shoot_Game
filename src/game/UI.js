@@ -67,6 +67,12 @@ export class UIController {
     this.waypointDistText = document.getElementById('waypoint-dist-text');
     this.waypointArrow = document.getElementById('waypoint-arrow');
 
+    // Arcade On-Screen Elements
+    this.targetLockPrompt = document.getElementById('target-lock-prompt');
+    this.hostilesCount = document.getElementById('hud-hostiles-count');
+    this.quickdrawTimerText = document.getElementById('quickdraw-timer-text');
+    this.quickdrawFill = document.getElementById('quickdraw-fill');
+
     // Stats elements
     this.statEnemiesKilled = document.getElementById('stat-enemies-killed');
     this.statHeadshots = document.getElementById('stat-headshots');
@@ -82,6 +88,12 @@ export class UIController {
     this.statFinalRank = document.getElementById('stat-final-rank');
     this.statFinalHeadshots = document.getElementById('stat-final-headshots');
     this.statFinalScore = document.getElementById('stat-final-score');
+
+    // Combat Task QTE Badges
+    this.combatBadgesContainer = document.getElementById('combat-sequence-badges');
+    this.lastRenderedEnemy = null;
+    this.lastRenderedStep = -1;
+    this.onBadgeClickCallback = null;
   }
 
   showHUD(visible = true) {
@@ -90,6 +102,123 @@ export class UIController {
     } else {
       this.hud.classList.add('hidden');
       if (this.bombWaypoint) this.bombWaypoint.classList.add('hidden');
+      if (this.targetLockPrompt) this.targetLockPrompt.classList.add('hidden');
+    }
+  }
+
+  // Set target lock prompt visibility, quick-draw countdown, and render combat sequence badges
+  setTargetLock(isLocked, enemy = null, reactionTimer = 2.0, reactionTimeMax = 2.0, onBadgeClick = null) {
+    const hasLock = !!(isLocked && enemy && !enemy.isDead);
+    this.onBadgeClickCallback = onBadgeClick;
+
+    if (this.targetLockPrompt) {
+      if (hasLock) {
+        this.targetLockPrompt.classList.remove('hidden');
+
+        // Update Quick-Draw Reaction countdown timer text
+        if (this.quickdrawTimerText) {
+          const t = Math.max(0, reactionTimer);
+          this.quickdrawTimerText.textContent = `⏱️ ${t.toFixed(1)}s`;
+        }
+
+        // Update Quick-Draw progress bar
+        if (this.quickdrawFill) {
+          const maxT = Math.max(0.1, reactionTimeMax || 2.0);
+          const pct = Math.max(0, Math.min(100, (reactionTimer / maxT) * 100));
+          this.quickdrawFill.style.width = `${pct}%`;
+
+          // Dynamic warning colors
+          if (pct < 35) {
+            this.quickdrawFill.style.background = 'linear-gradient(90deg, #ff0044, #ff3344)';
+            this.quickdrawFill.style.boxShadow = '0 0 10px #ff0044';
+          } else if (pct < 65) {
+            this.quickdrawFill.style.background = 'linear-gradient(90deg, #ff9900, #ffcc00)';
+            this.quickdrawFill.style.boxShadow = '0 0 8px #ffcc00';
+          } else {
+            this.quickdrawFill.style.background = 'linear-gradient(90deg, #00f0ff, #00ff88)';
+            this.quickdrawFill.style.boxShadow = '0 0 8px #00ff88';
+          }
+        }
+
+        // Render / Update Combat Task Badges
+        if (this.combatBadgesContainer && enemy && enemy.combatTask) {
+          const task = enemy.combatTask;
+          if (this.lastRenderedEnemy !== enemy || this.lastRenderedStep !== task.currentIndex) {
+            this.lastRenderedEnemy = enemy;
+            this.lastRenderedStep = task.currentIndex;
+            this.renderCombatBadges(task, onBadgeClick);
+          }
+        }
+      } else {
+        this.targetLockPrompt.classList.add('hidden');
+        this.lastRenderedEnemy = null;
+        this.lastRenderedStep = -1;
+      }
+    }
+
+    const ch = document.getElementById('crosshair');
+    if (ch) {
+      if (hasLock) {
+        ch.classList.add('locked');
+      } else {
+        ch.classList.remove('locked');
+      }
+    }
+  }
+
+  // Render Combat Cipher Sequence Badges with active highlights and click listeners (3-Button Layout: C, V, SPACE)
+  renderCombatBadges(combatTask, onBadgeClick) {
+    if (!this.combatBadgesContainer || !combatTask) return;
+    this.combatBadgesContainer.innerHTML = '';
+
+    const labelMap = {
+      'C': 'CIRCUIT [C]',
+      'V': 'CIRCUIT [V]',
+      'SPACE': 'TRIGGER [SPACE]',
+      '1': 'CIRCUIT [C]',
+      '2': 'CIRCUIT [V]',
+      '3': 'TRIGGER [SPACE]'
+    };
+
+    const seq = combatTask.sequence || [];
+    const curIdx = combatTask.currentIndex || 0;
+
+    seq.forEach((key, idx) => {
+      const badge = document.createElement('div');
+      let statusClass = 'pending';
+      if (idx < curIdx) statusClass = 'cleared';
+      else if (idx === curIdx) statusClass = 'active';
+
+      badge.className = `combat-badge badge-${key} ${statusClass}`;
+      badge.dataset.key = key;
+
+      const keyLabel = labelMap[key] || key;
+      if (idx < curIdx) {
+        badge.innerHTML = `<span class="badge-key">✓</span> <span class="badge-label">[${key}]</span>`;
+      } else {
+        badge.innerHTML = `<span class="badge-key">[${key}]</span> <span class="badge-label">${keyLabel}</span>`;
+      }
+
+      badge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (onBadgeClick) {
+          onBadgeClick(key);
+        }
+      });
+
+      this.combatBadgesContainer.appendChild(badge);
+    });
+  }
+
+  // Trigger error shake on current active badge when wrong key is pressed
+  triggerBadgeShake() {
+    if (!this.combatBadgesContainer) return;
+    const activeBadge = this.combatBadgesContainer.querySelector('.combat-badge.active');
+    if (activeBadge) {
+      activeBadge.classList.add('shake-error');
+      setTimeout(() => {
+        activeBadge.classList.remove('shake-error');
+      }, 350);
     }
   }
 
@@ -97,9 +226,14 @@ export class UIController {
   update(player, bomb, score, currentLevel, levelNames, camera, enemies = []) {
     if (!player) return;
 
-    // Level Header
+    // Level Header & Hostile Tracker (4 Levels, 3 Enemies per level)
     this.levelBadge.textContent = `LEVEL ${currentLevel}/4`;
     this.levelName.textContent = levelNames[currentLevel - 1] || 'INFILTRATION';
+
+    if (this.hostilesCount && enemies.length > 0) {
+      const deadCount = enemies.filter(e => e.isDead).length;
+      this.hostilesCount.textContent = `${deadCount} / ${enemies.length}`;
+    }
 
     // Score
     this.scoreVal.textContent = String(score).padStart(4, '0');
@@ -143,12 +277,14 @@ export class UIController {
       this.focusStatus.className = 'focus-status';
     }
 
-    // 4. Boss HUD (Level 4 Citadel Boss)
+    // 4. Boss HUD (Level 4 Fortress Boss - General Malikov)
     const boss = enemies.find(e => e.archetype === 'boss' && !e.isDead);
     if (boss && currentLevel === 4) {
       this.bossHud.classList.remove('hidden');
-      const shieldPct = Math.max(0, (boss.shield / boss.maxShield) * 100);
-      const hpPct = Math.max(0, (boss.health / boss.maxHealth) * 100);
+      const maxS = boss.maxShield || 80;
+      const curS = Math.max(0, boss.shield || 0);
+      const shieldPct = Math.max(0, (curS / maxS) * 100);
+      const hpPct = Math.max(0, (boss.health / (boss.maxHealth || 60)) * 100);
       this.bossShieldFill.style.width = `${shieldPct}%`;
       this.bossHealthFill.style.width = `${hpPct}%`;
     } else {
@@ -308,32 +444,37 @@ export class UIController {
   }
 
   // Show Level Complete Screen
-  showLevelComplete(levelNumber, stats, totalScore) {
+  showLevelComplete(levelNumber, stats, totalScore, totalEnemies = 3) {
     this.showHUD(false);
-    this.completeLevelTitle.textContent = `LEVEL ${levelNumber} DEFUSED SUCCESSFULLY`;
-    this.statEnemiesKilled.textContent = stats.enemiesKilled;
-    this.statHeadshots.textContent = `${stats.headshots} (+${stats.headshots * 15} PTS)`;
-    this.statBodyshots.textContent = `${stats.bodyshots} (+${stats.bodyshots * 5} PTS)`;
-    this.statHitsTaken.textContent = `${stats.hitsTaken} (-${stats.hitsTaken * 3} PTS)`;
-    this.statTotalScore.textContent = String(totalScore).padStart(4, '0');
+    if (this.completeLevelTitle) this.completeLevelTitle.textContent = `LEVEL ${levelNumber} DEFUSED SUCCESSFULLY`;
+    const killed = stats.enemiesKilled !== undefined ? stats.enemiesKilled : totalEnemies;
+    if (this.statEnemiesKilled) this.statEnemiesKilled.textContent = `${killed} / ${totalEnemies}`;
+    if (this.statHeadshots) this.statHeadshots.textContent = `${stats.headshots || 0} (+${(stats.headshots || 0) * 15} PTS)`;
+    if (this.statBodyshots) this.statBodyshots.textContent = `${stats.bodyshots || 0} (+${(stats.bodyshots || 0) * 5} PTS)`;
+    if (this.statHitsTaken) this.statHitsTaken.textContent = `${stats.hitsTaken || 0} (-${(stats.hitsTaken || 0) * 3} PTS)`;
+    if (this.statTotalScore) this.statTotalScore.textContent = String(totalScore).padStart(4, '0');
 
-    this.levelCompleteScreen.classList.remove('hidden');
+    if (this.levelCompleteScreen) {
+      this.levelCompleteScreen.classList.remove('hidden');
+    }
   }
 
   // Show Game Over Screen
   showGameOver(reason, levelNumber, totalScore) {
     this.showHUD(false);
-    this.gameOverReason.textContent = reason;
-    this.statGameOverScore.textContent = String(totalScore).padStart(4, '0');
-    this.statGameOverLevel.textContent = `Level ${levelNumber}`;
-    this.gameOverScreen.classList.remove('hidden');
+    if (this.gameOverReason) this.gameOverReason.textContent = reason;
+    if (this.statGameOverScore) this.statGameOverScore.textContent = String(totalScore).padStart(4, '0');
+    if (this.statGameOverLevel) this.statGameOverLevel.textContent = `Level ${levelNumber}`;
+    if (this.gameOverScreen) {
+      this.gameOverScreen.classList.remove('hidden');
+    }
   }
 
   // Show Grand Victory Screen
   showVictory(stats, totalScore) {
     this.showHUD(false);
-    this.statFinalHeadshots.textContent = stats.headshots;
-    this.statFinalScore.textContent = String(totalScore).padStart(4, '0');
+    if (this.statFinalHeadshots) this.statFinalHeadshots.textContent = stats.headshots;
+    if (this.statFinalScore) this.statFinalScore.textContent = String(totalScore).padStart(4, '0');
 
     let rank = 'SPECIAL FORCES OPERATIVE';
     if (stats.headshots >= 10 && totalScore > 400) {
@@ -341,8 +482,10 @@ export class UIController {
     } else if (totalScore > 300) {
       rank = 'ELITE TACTICAL INFILTRATOR (A-RANK)';
     }
-    this.statFinalRank.textContent = rank;
-    this.victoryScreen.classList.remove('hidden');
+    if (this.statFinalRank) this.statFinalRank.textContent = rank;
+    if (this.victoryScreen) {
+      this.victoryScreen.classList.remove('hidden');
+    }
   }
 
   hideAllModals() {

@@ -195,6 +195,7 @@ html, body {
   position: absolute;
   background: rgba(0, 240, 255, 0.9);
   box-shadow: 0 0 4px var(--neon-cyan);
+  transition: all 0.15s ease-out;
 }
 
 .ch-top { width: 2px; height: 8px; top: 0; left: 15px; }
@@ -210,6 +211,38 @@ html, body {
   top: 14px;
   left: 14px;
   box-shadow: 0 0 6px var(--neon-cyan);
+  transition: all 0.15s ease-out;
+}
+
+/* Red/Gold High-Visibility Locked Target Reticle */
+.crosshair-default.locked {
+  transform: scale(1.35);
+}
+
+.crosshair-default.locked .ch-line {
+  background: #ff2233;
+  box-shadow: 0 0 8px #ff2233, 0 0 16px rgba(255, 34, 51, 0.8);
+}
+
+.crosshair-default.locked .ch-dot {
+  background: #ffd700;
+  box-shadow: 0 0 10px #ffd700, 0 0 20px #ff3344;
+  transform: scale(1.4);
+}
+
+.crosshair-default.locked::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 2px solid rgba(255, 34, 51, 0.85);
+  border-radius: 50%;
+  animation: lock-reticle-spin 1.2s infinite linear;
+}
+
+@keyframes lock-reticle-spin {
+  0% { transform: rotate(0deg) scale(0.95); opacity: 0.8; }
+  50% { transform: rotate(180deg) scale(1.1); opacity: 1; border-color: #ffd700; }
+  100% { transform: rotate(360deg) scale(0.95); opacity: 0.8; }
 }
 
 /* Hitmarker */
@@ -1374,4 +1407,290 @@ html, body {
   border-color: var(--neon-green);
   color: #000;
 }
+
+/* --- ARCADE TARGET LOCK ON-SCREEN PROMPT --- */
+.target-lock-prompt {
+  position: absolute;
+  top: 62%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(18, 5, 10, 0.92);
+  border: 2px solid var(--neon-red);
+  padding: 10px 24px;
+  border-radius: 8px;
+  box-shadow: 0 0 25px rgba(255, 51, 68, 0.7), inset 0 0 15px rgba(255, 51, 68, 0.3);
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 45;
+  animation: target-lock-glow 0.6s infinite alternate ease-in-out;
+}
+
+.lock-pulse {
+  font-size: 2rem;
+  animation: lock-icon-pulse 0.4s infinite alternate;
+}
+
+.lock-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lock-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.lock-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #ff3344;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px #ff3344;
+}
+
+.quickdraw-timer-text {
+  font-family: var(--font-tech);
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--neon-gold);
+  text-shadow: 0 0 10px var(--neon-gold);
+}
+
+.quickdraw-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 2px 0 4px 0;
+}
+
+.quickdraw-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00f0ff, #00ff88);
+  box-shadow: 0 0 8px #00ff88;
+  transition: width 0.05s linear;
+}
+
+/* Combat Task QTE Cipher Container */
+.combat-task-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+}
+
+.task-cipher-label {
+  font-family: var(--font-tech);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--neon-yellow);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.combat-sequence-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.combat-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: var(--font-tech);
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  border: 2px solid #666;
+  background: rgba(20, 25, 35, 0.85);
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  position: relative;
+}
+
+.combat-badge:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.combat-badge .badge-key {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.combat-badge .badge-label {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  letter-spacing: 0.5px;
+}
+
+/* Color Coding for 3-Button Layout: C (Cyan), V (Neon Green), SPACE (Gold Trigger) */
+.combat-badge.badge-C {
+  border-color: #00f0ff;
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.18);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+}
+
+.combat-badge.badge-V {
+  border-color: #00ff88;
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.18);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.35);
+}
+
+.combat-badge.badge-SPACE {
+  border-color: #ffd700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.2);
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.45);
+}
+
+.combat-badge.badge-1 {
+  border-color: #00f0ff;
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.18);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+.combat-badge.badge-2 {
+  border-color: #00ff88;
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.18);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.combat-badge.badge-3 {
+  border-color: #ffd700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.18);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Badge States */
+.combat-badge.active {
+  transform: scale(1.12);
+  border-width: 2.5px;
+  animation: badge-active-pulse 0.45s infinite alternate ease-in-out;
+  z-index: 2;
+}
+
+.combat-badge.active::after {
+  content: '▼';
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--neon-yellow);
+  animation: badge-arrow-bounce 0.4s infinite alternate ease-in-out;
+}
+
+.combat-badge.cleared {
+  opacity: 0.45;
+  border-color: #00ff88 !important;
+  color: #00ff88 !important;
+  background: rgba(0, 255, 136, 0.1) !important;
+  box-shadow: none !important;
+  transform: scale(0.92);
+}
+
+.combat-badge.pending {
+  opacity: 0.55;
+}
+
+.combat-badge.shake-error {
+  animation: badge-shake-error 0.35s ease-in-out !important;
+  border-color: #ff0044 !important;
+  color: #ff0044 !important;
+  background: rgba(255, 0, 68, 0.4) !important;
+  box-shadow: 0 0 20px #ff0044 !important;
+}
+
+@keyframes badge-active-pulse {
+  0% { box-shadow: 0 0 10px currentColor; }
+  100% { box-shadow: 0 0 25px currentColor; }
+}
+
+@keyframes badge-arrow-bounce {
+  0% { transform: translate(-50%, 0); }
+  100% { transform: translate(-50%, -4px); }
+}
+
+@keyframes badge-shake-error {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.lock-sub {
+  font-family: var(--font-tech);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #b0c0d0;
+  letter-spacing: 1.2px;
+}
+
+@keyframes target-lock-glow {
+  0% { transform: translate(-50%, -50%) scale(1.0); box-shadow: 0 0 15px rgba(255, 51, 68, 0.5); }
+  100% { transform: translate(-50%, -50%) scale(1.03); box-shadow: 0 0 35px rgba(255, 51, 68, 0.9); }
+}
+
+@keyframes lock-icon-pulse {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1.2); }
+}
+
+/* Hostile Counter in Top Bar */
+.hostiles-tracker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.hostiles-tag {
+  color: #8899aa;
+  letter-spacing: 1px;
+}
+
+.hostiles-num {
+  color: var(--neon-yellow);
+  font-family: var(--font-tech);
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-shadow: 0 0 8px var(--neon-yellow);
+}
+
+.wire-click-hint {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 700;
+  margin-left: 8px;
+  letter-spacing: 1px;
+}
+
 

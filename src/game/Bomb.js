@@ -3,7 +3,7 @@ import { audio } from '../engine/Audio.js';
 import { TextureGenerator } from '../engine/TextureGenerator.js';
 
 export class Bomb {
-  constructor(scene, x, y, z, initialTime = 90) {
+  constructor(scene, x, y, z, initialTime = 120) {
     this.scene = scene;
     this.position = new THREE.Vector3(x, y, z);
     this.initialTime = initialTime;
@@ -109,26 +109,26 @@ export class Bomb {
     this.bombLight.position.set(0, 0.6, 0.1);
     this.root.add(this.bombLight);
 
-    // 5. Arched Multi-Colored Wire Harness
+    // 5. Arched Multi-Colored Wire Harness: All 6 Breadboard Colors
     const wireDefs = [
-      { color: 0xff2233, path: [[-0.25, 0.42, -0.18], [-0.22, 0.62, -0.06], [-0.06, 0.42, 0.1]] },
-      { color: 0x0088ff, path: [[-0.22, 0.42, -0.15], [-0.15, 0.65, 0.0], [0.1, 0.42, 0.15]] },
-      { color: 0xffcc00, path: [[-0.18, 0.42, -0.2], [-0.1, 0.58, 0.06], [0.18, 0.42, -0.06]] },
-      { color: 0x00ff88, path: [[-0.28, 0.42, -0.12], [-0.24, 0.56, 0.1], [-0.12, 0.42, 0.18]] },
-      { color: 0xffffff, path: [[-0.15, 0.42, -0.16], [-0.06, 0.54, 0.02], [0.03, 0.42, 0.2]] }
+      { color: 0xff2233, path: [[-0.25, 0.42, -0.18], [-0.22, 0.62, -0.06], [-0.06, 0.42, 0.1]] },   // 1. Red
+      { color: 0x00ff88, path: [[-0.23, 0.42, -0.16], [-0.18, 0.60, -0.02], [-0.02, 0.42, 0.12]] },  // 2. Green
+      { color: 0xffcc00, path: [[-0.20, 0.42, -0.14], [-0.14, 0.58, 0.02], [0.04, 0.42, 0.14]] },    // 3. Yellow
+      { color: 0x181818, path: [[-0.17, 0.42, -0.12], [-0.10, 0.56, 0.06], [0.10, 0.42, 0.16]] },    // 4. Black
+      { color: 0x0088ff, path: [[-0.14, 0.42, -0.10], [-0.06, 0.54, 0.10], [0.16, 0.42, 0.18]] },    // 5. Blue
+      { color: 0xf5f5f5, path: [[-0.11, 0.42, -0.08], [-0.02, 0.52, 0.14], [0.22, 0.42, 0.20]] }     // 6. White
     ];
 
     wireDefs.forEach(w => {
       const points = w.path.map(p => new THREE.Vector3(p[0], p[1], p[2]));
       const curve = new THREE.CatmullRomCurve3(points);
-      const geom = new THREE.TubeGeometry(curve, 20, 0.015, 8, false);
+      const geom = new THREE.TubeGeometry(curve, 20, 0.014, 8, false);
       const mat = new THREE.MeshStandardMaterial({ color: w.color, roughness: 0.3, metalness: 0.1 });
       const wireMesh = new THREE.Mesh(geom, mat);
       this.root.add(wireMesh);
     });
 
     // 6. --- ULTRA-VISIBLE 3D IN-WORLD TACTICAL BEACON ---
-    // A. Vertical Light Column rising into the sky (visible across the entire base)
     const beamGeom = new THREE.CylinderGeometry(0.15, 0.4, 18, 16);
     beamGeom.translate(0, 9, 0);
     const beamMat = new THREE.MeshBasicMaterial({
@@ -140,7 +140,7 @@ export class Bomb {
     this.lightBeam = new THREE.Mesh(beamGeom, beamMat);
     this.root.add(this.lightBeam);
 
-    // B. Floating 3D Holographic Waypoint Diamond above bomb
+    // Floating 3D Holographic Waypoint Diamond above bomb
     const diamondGeom = new THREE.OctahedronGeometry(0.35, 0);
     const diamondMat = new THREE.MeshBasicMaterial({
       color: 0xffdd00,
@@ -156,7 +156,7 @@ export class Bomb {
     this.waypointCore = new THREE.Mesh(coreGeom, coreMat);
     this.waypointDiamond.add(this.waypointCore);
 
-    // C. Pulsating Ground Warning Ring
+    // Pulsating Ground Warning Ring
     const ringGeom = new THREE.RingGeometry(1.2, 1.4, 32);
     ringGeom.rotateX(-Math.PI / 2);
     const ringMat = new THREE.MeshBasicMaterial({

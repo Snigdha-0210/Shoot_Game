@@ -57,7 +57,7 @@ export class Player {
     this.flashlightOn = true;
     this.setupFlashlight();
 
-    // Dual Weapon Inventory & Equipment
+    // Dual Weapon Inventory & Equipment (Arcade Unlimited Reserves)
     this.activeWeapon = 'primary'; // 'primary' | 'secondary'
     this.weapons = {
       primary: {
@@ -65,10 +65,10 @@ export class Player {
         type: 'rifle',
         clip: 30,
         maxClip: 30,
-        reserve: 90,
+        reserve: 999,
         fireRate: 0.11,
-        reloadDuration: 1.5,
-        damageBody: 20,
+        reloadDuration: 1.2,
+        damageBody: 25,
         damageHead: 100,
         hipPos: new THREE.Vector3(0.24, -0.22, -0.42),
         adsPos: new THREE.Vector3(0, -0.075, -0.25)
@@ -76,12 +76,12 @@ export class Player {
       secondary: {
         name: 'USP-45 Tactical',
         type: 'pistol',
-        clip: 12,
-        maxClip: 12,
-        reserve: 48,
+        clip: 15,
+        maxClip: 15,
+        reserve: 999,
         fireRate: 0.18,
-        reloadDuration: 1.0,
-        damageBody: 25,
+        reloadDuration: 0.9,
+        damageBody: 30,
         damageHead: 100,
         hipPos: new THREE.Vector3(0.20, -0.20, -0.38),
         adsPos: new THREE.Vector3(0, -0.065, -0.22)
@@ -340,18 +340,21 @@ export class Player {
 
   // Set spawn position
   spawn(x, y, z, rotY = 0) {
-    this.yawNode.position.set(x, y, z);
+    this.yawNode.position.set(x, 0, z);
+    this.pitchNode.position.set(0, this.standHeight, 0);
     this.yaw = rotY;
     this.pitch = 0;
+    this.yawNode.rotation.y = rotY;
+    this.pitchNode.rotation.x = 0;
     this.velocity.set(0, 0, 0);
     this.health = this.maxHealth;
     this.lifelines = this.maxLifelines;
 
-    // Reset weapons
+    // Reset weapons (Arcade Ample Reserves)
     this.weapons.primary.clip = this.weapons.primary.maxClip;
-    this.weapons.primary.reserve = 90;
+    this.weapons.primary.reserve = 999;
     this.weapons.secondary.clip = this.weapons.secondary.maxClip;
-    this.weapons.secondary.reserve = 48;
+    this.weapons.secondary.reserve = 999;
     this.activeWeapon = 'primary';
     this.primaryModel.visible = true;
     this.secondaryModel.visible = false;
@@ -362,6 +365,7 @@ export class Player {
 
     this.isDead = false;
     this.isReloading = false;
+    this.fireTimer = 0;
   }
 
   // Take damage from enemy
@@ -369,7 +373,9 @@ export class Player {
     if (this.isDead) return;
 
     this.health -= amount;
-    audio.playPlayerHurt();
+    try {
+      audio.playPlayerHurt();
+    } catch (e) {}
 
     if (this.health <= 0) {
       this.lifelines--;
@@ -382,7 +388,7 @@ export class Player {
         this.isDead = true;
         if (this.isBulletTime) {
           this.isBulletTime = false;
-          audio.playBulletTimeEnd();
+          try { audio.playBulletTimeEnd(); } catch (e) {}
         }
       }
     }
@@ -406,17 +412,23 @@ export class Player {
     weapon.clip--;
     this.fireTimer = weapon.fireRate;
 
-    if (this.activeWeapon === 'primary') {
-      audio.playSilencedShot();
-    } else {
-      audio.playPistolShot();
+    try {
+      if (this.activeWeapon === 'primary') {
+        audio.playSilencedShot();
+      } else {
+        audio.playPistolShot();
+      }
+    } catch (e) {
+      console.warn('Audio play exception:', e);
     }
 
     // Muzzle flash light
-    this.muzzleLight.intensity = 2.5;
-    setTimeout(() => {
-      this.muzzleLight.intensity = 0;
-    }, 40);
+    if (this.muzzleLight) {
+      this.muzzleLight.intensity = 2.5;
+      setTimeout(() => {
+        if (this.muzzleLight) this.muzzleLight.intensity = 0;
+      }, 40);
+    }
 
     // Recoil kickback
     this.recoilOffset.z = this.activeWeapon === 'primary' ? 0.08 : 0.05;
@@ -568,13 +580,8 @@ export class Player {
       this.throwSmoke(grenadeManager);
     }
 
-    // Adrenaline Bullet-Time ([Space])
-    if (input.isJustPressed('Space')) {
-      this.toggleBulletTime();
-    }
-
-    // Flashlight toggle key ([F])
-    if (input.isJustPressed('KeyF')) {
+    // Flashlight toggle key ([T])
+    if (input.isJustPressed('KeyT')) {
       this.toggleFlashlight();
     }
 
@@ -619,4 +626,46 @@ export class Player {
 
     this.weaponRoot.rotation.x = this.recoilRotation.x;
   }
+
+  // Update weapon sway, recoil, and reload in automated rail mode
+  updateRailMode(delta) {
+    if (this.isDead) return;
+
+    if (this.fireTimer > 0) this.fireTimer -= delta;
+
+    // 1. Recoil recovery
+    this.recoilOffset.lerp(new THREE.Vector3(0, 0, 0), delta * 14);
+    this.recoilRotation.lerp(new THREE.Vector3(0, 0, 0), delta * 14);
+
+    // 2. Reload animation
+    if (this.isReloading) {
+      const weapon = this.curWeapon;
+      this.reloadTimer -= delta;
+
+      const magMesh = this.activeWeapon === 'primary' ? this.primaryMagMesh : this.secondaryMagMesh;
+      const magBaseY = this.activeWeapon === 'primary' ? -0.11 : -0.08;
+      magMesh.position.y = magBaseY - Math.sin((1 - this.reloadTimer / weapon.reloadDuration) * Math.PI) * 0.15;
+
+      if (this.reloadTimer <= 0) {
+        const needed = weapon.maxClip - weapon.clip;
+        const toLoad = Math.min(needed, weapon.reserve);
+        weapon.clip += toLoad;
+        weapon.reserve -= toLoad;
+        this.isReloading = false;
+        magMesh.position.y = magBaseY;
+      }
+    }
+
+    // 3. Subtle breathing / walking gun sway
+    const bobTime = Date.now() * 0.005;
+    const bobX = Math.sin(bobTime) * 0.003;
+    const bobY = Math.cos(bobTime * 2) * 0.003;
+    const targetWeaponPos = this.curWeapon.hipPos;
+
+    this.weaponRoot.position.x = THREE.MathUtils.lerp(this.weaponRoot.position.x, targetWeaponPos.x + this.recoilOffset.x + bobX, delta * 16);
+    this.weaponRoot.position.y = THREE.MathUtils.lerp(this.weaponRoot.position.y, targetWeaponPos.y + this.recoilOffset.y + bobY, delta * 16);
+    this.weaponRoot.position.z = THREE.MathUtils.lerp(this.weaponRoot.position.z, targetWeaponPos.z + this.recoilOffset.z, delta * 16);
+    this.weaponRoot.rotation.x = this.recoilRotation.x;
+  }
 }
+

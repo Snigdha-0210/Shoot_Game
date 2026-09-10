@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { GameRenderer } from './engine/Renderer.js';
 import { InputManager } from './engine/Input.js';
 import { audio } from './engine/Audio.js';
@@ -10,17 +11,19 @@ import { Minimap } from './game/Minimap.js';
 import { UIController } from './game/UI.js';
 import { PickupManager } from './game/Pickups.js';
 import { GrenadeManager } from './game/Grenade.js';
+import { RailController } from './game/RailController.js';
 
 class TacticalGame {
   constructor() {
     this.state = 'MENU'; // 'MENU' | 'PLAYING' | 'DEFUSING' | 'LEVEL_COMPLETE' | 'GAMEOVER' | 'VICTORY' | 'PAUSED'
     this.currentLevel = 1;
     this.maxLevels = 4;
+    this.globalGameTimer = 120.0; // Global 2-Minute (120s) timer for entire game
     this.levelNames = [
       'COASTAL INFILTRATION YARD',
       'SUBTERRANEAN BUNKER & SERVERS',
       'RESEARCH SILO & CATWALKS',
-      'FORTRESS COMMAND CITADEL'
+      'FORTRESS COMMAND CITADEL (BOSS SHOWDOWN)'
     ];
 
     // Instantiate Subsystems
@@ -29,6 +32,7 @@ class TacticalGame {
     this.ui = new UIController();
     this.hitboxManager = new HitboxManager();
     this.minimap = new Minimap('minimap-canvas');
+    this.railController = new RailController();
 
     // Tactical Equipment & Loot Subsystems
     this.pickupManager = new PickupManager(this.renderer.scene);
@@ -115,33 +119,76 @@ class TacticalGame {
       });
     }
 
+    // Click anywhere on game container to trigger weapon fire
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+      gameContainer.addEventListener('click', () => {
+        if (this.state === 'PLAYING') {
+          this.input.justPressed['Trigger'] = true;
+          this.input.justPressed['Space'] = true;
+        }
+      });
+    }
+
+    // Direct click on target lock prompt to fire
+    const lockPrompt = document.getElementById('target-lock-prompt');
+    if (lockPrompt) {
+      lockPrompt.addEventListener('click', () => {
+        if (this.state === 'PLAYING') {
+          this.input.justPressed['Trigger'] = true;
+          this.input.justPressed['Space'] = true;
+        }
+      });
+    }
+
     // Direct click on interaction prompt or waypoint tag to defuse
     const promptEl = document.getElementById('interaction-prompt');
     if (promptEl) {
       promptEl.addEventListener('click', () => {
-        if (this.state === 'PLAYING' && this.bomb && this.bomb.getDistanceTo(this.player.position) < 4.0) {
+        if (this.state === 'PLAYING' && this.bomb && this.bomb.getDistanceTo(this.player.position) < 5.0) {
           this.state = 'DEFUSING';
           this.defusalStation.open(this.currentLevel, this.bomb);
         }
       });
     }
+
     const wpEl = document.getElementById('bomb-screen-waypoint');
     if (wpEl) {
       wpEl.addEventListener('click', () => {
-        if (this.state === 'PLAYING' && this.bomb && this.bomb.getDistanceTo(this.player.position) < 4.0) {
+        if (this.state === 'PLAYING' && this.bomb && this.bomb.getDistanceTo(this.player.position) < 5.0) {
           this.state = 'DEFUSING';
           this.defusalStation.open(this.currentLevel, this.bomb);
         }
       });
     }
+
+    // Global Single-Button / Key Listener for Level Transition Screens (Breadboard Trigger / Space / Enter)
+    window.addEventListener('keydown', (e) => {
+      if (this.state === 'LEVEL_COMPLETE' && (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyF' || e.code === 'KeyZ')) {
+        this.input.requestLock();
+        this.startLevel(this.currentLevel + 1, true);
+      } else if (this.state === 'GAMEOVER' && (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyF' || e.code === 'KeyZ')) {
+        this.input.requestLock();
+        this.startLevel(this.currentLevel, true);
+      } else if (this.state === 'VICTORY' && (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyF' || e.code === 'KeyZ')) {
+        this.input.requestLock();
+        this.startLevel(1, false);
+      }
+    });
   }
 
   // Start specific level
   startLevel(levelNumber, preserveScore = false) {
+    clearTimeout(this.levelAdvanceTimeout);
     this.currentLevel = levelNumber;
     this.state = 'PLAYING';
     this.ui.hideAllModals();
     this.ui.showHUD(true);
+
+    // Reset global 2-minute timer on new game run (Level 1)
+    if (levelNumber === 1 && !preserveScore) {
+      this.globalGameTimer = 120.0;
+    }
 
     this.hitboxManager.reset(preserveScore);
     this.pickupManager.clear();
@@ -153,6 +200,11 @@ class TacticalGame {
     this.enemies = data.enemies;
     this.aiManager.colliders = data.colliders;
 
+    // Apply continuous global timer to the bomb
+    if (this.bomb) {
+      this.bomb.timeRemaining = Math.max(1, this.globalGameTimer);
+    }
+
     // Spawn player
     this.player.spawn(
       data.playerSpawn.x,
@@ -160,19 +212,25 @@ class TacticalGame {
       data.playerSpawn.z,
       data.playerSpawn.rotY
     );
+
+    // Initialize Automated Rail Navigation
+    this.railController.initLevelRail(data.railWaypoints, data.enemies, data.bomb, this.player, this.currentLevel);
   }
 
   // Handle successful bomb defusal
   onBombDefused(level) {
-    if (this.bomb) this.bomb.isDefused = true;
+    if (this.bomb) {
+      this.bomb.isDefused = true;
+      this.globalGameTimer = Math.max(1, this.bomb.timeRemaining);
+    }
 
     // Bonus points for defusing
-    const timeBonus = Math.round(this.bomb.timeRemaining * 2);
+    const timeBonus = Math.round(this.bomb ? this.bomb.timeRemaining * 2 : 0);
     this.hitboxManager.score += 100 + timeBonus;
     this.ui.showScoreToast(`+100 BOMB DEFUSED! (+${timeBonus} TIME BONUS)`, 'headshot');
 
     if (level >= this.maxLevels) {
-      // Grand Victory!
+      // Grand Victory! (All 4 Levels Cleared)
       this.state = 'VICTORY';
       if (document.exitPointerLock) document.exitPointerLock();
       this.ui.showVictory(this.hitboxManager.stats, this.hitboxManager.score);
@@ -180,7 +238,15 @@ class TacticalGame {
       // Level Complete
       this.state = 'LEVEL_COMPLETE';
       if (document.exitPointerLock) document.exitPointerLock();
-      this.ui.showLevelComplete(level, this.hitboxManager.stats, this.hitboxManager.score);
+      this.ui.showLevelComplete(level, this.hitboxManager.stats, this.hitboxManager.score, this.enemies.length);
+
+      // Auto-advance to next sector after 2.5 seconds if no key is pressed
+      clearTimeout(this.levelAdvanceTimeout);
+      this.levelAdvanceTimeout = setTimeout(() => {
+        if (this.state === 'LEVEL_COMPLETE') {
+          this.startLevel(this.currentLevel + 1, true);
+        }
+      }, 2500);
     }
   }
 
@@ -191,14 +257,95 @@ class TacticalGame {
     this.ui.showGameOver(reason, this.currentLevel, this.hitboxManager.score);
   }
 
+  // Process player QTE / combat cipher input
+  handleCombatInput(rawKey) {
+    if (this.state !== 'PLAYING') return;
+    try { audio.init(); } catch (e) {}
+
+    // Check if target is locked on an active hostile
+    if (this.railController.isTargetLocked && this.railController.targetEnemy && !this.railController.targetEnemy.isDead) {
+      const activeEnemy = this.railController.targetEnemy;
+      const res = this.railController.processCombatInput(rawKey);
+
+      if (res.status === 'PROGRESS') {
+        // Correct step in sequence!
+        try { audio.playQTEChime(res.step); } catch (e) {}
+      } else if (res.status === 'COMPLETE') {
+        // Full sequence completed -> Neutralize hostile with lethal shot!
+        try { audio.playQTEComplete(); } catch (e) {}
+
+        this.player.shoot(() => {
+          const wasAlive = !activeEnemy.isDead;
+          this.hitboxManager.comboCount++;
+          this.hitboxManager.comboTimer = this.hitboxManager.comboMaxTime;
+          const points = 25 * this.hitboxManager.comboCount;
+          this.hitboxManager.score += points;
+          this.hitboxManager.stats.headshots++;
+
+          // Hit effects & sound
+          this.ui.triggerHitmarker(true);
+          if (this.hitboxManager.comboCount > 1) {
+            this.ui.triggerCombo(this.hitboxManager.comboCount, points);
+            try { audio.playComboChime(this.hitboxManager.comboCount); } catch (e) {}
+          } else {
+            this.ui.showScoreToast(`+${points} CIPHER OVERRIDE CRITICAL!`, 'headshot');
+            try { audio.playHeadshotKill(); } catch (e) {}
+          }
+
+          const hitPoint = activeEnemy.root.position.clone().add(new THREE.Vector3(0, 1.5, 0));
+          this.renderer.spawnBloodPuff(hitPoint, 25);
+          this.renderer.spawnSparks(hitPoint, new THREE.Vector3(0, 1, 0), 0xffd700, 16);
+
+          // Apply damage to kill
+          activeEnemy.onHit(true, 100);
+
+          // Reset target lock and initiate sprint traversal to next encounter
+          this.railController.state = 'MOVING';
+          this.railController.isTargetLocked = false;
+          this.railController.targetEnemy = null;
+          this.railController.killPauseTimer = 0.5;
+
+          if (wasAlive && activeEnemy.isDead) {
+            this.hitboxManager.stats.enemiesKilled++;
+            this.pickupManager.spawnDrop(activeEnemy.root.position.clone());
+          }
+        });
+      } else if (res.status === 'ERROR') {
+        // Wrong key pressed!
+        try { audio.playQTEError(); } catch (e) {}
+        this.ui.triggerBadgeShake();
+        this.ui.flashDamage();
+        this.ui.showScoreToast('⚠️ WRONG CIPHER KEY! (-0.25s)', 'penalty');
+      }
+    } else {
+      // Fallback: If space/trigger is pressed with no locked target, fire weapon at scenery
+      const norm = String(rawKey || '').toUpperCase();
+      if (norm === 'SPACE' || norm === 'TRIGGER' || norm === 'LMB' || norm === 'ENTER' || norm === 'KEYF' || norm === 'KEYZ') {
+        this.player.shoot(() => {
+          this.hitboxManager.fireRaycast(
+            this.renderer.camera,
+            this.enemies,
+            this.levelManager.colliders,
+            this.renderer,
+            this.player.activeWeapon
+          );
+        });
+      }
+    }
+  }
+
   // Main game loop
   startLoop() {
     const loop = (time) => {
       const rawDelta = Math.min(0.1, (time - this.lastTime) / 1000);
       this.lastTime = time;
 
-      this.update(rawDelta);
-      this.renderer.render();
+      try {
+        this.update(rawDelta);
+        this.renderer.render();
+      } catch (err) {
+        console.error('Game loop runtime error:', err);
+      }
 
       requestAnimationFrame(loop);
     };
@@ -211,47 +358,52 @@ class TacticalGame {
       const timeScale = this.player.isBulletTime ? 0.35 : 1.0;
       const gameDelta = rawDelta * timeScale;
 
-      // 1. Player Update (Player controls remain fluid, world slows)
-      this.player.update(rawDelta, this.input, this.levelManager.colliders, this.grenadeManager);
+      // 1. Automated Rail Navigation & Auto-Aim Tracking with Decreasing Reaction Window
+      this.railController.update(gameDelta, this.player, () => {
+        // Callback: Arrived at Bomb Defusal Terminal
+        if (this.bomb && !this.bomb.isDefused && !this.defusalStation.isOpen) {
+          this.state = 'DEFUSING';
+          this.defusalStation.open(this.currentLevel, this.bomb);
+        }
+      }, (activeEnemy) => {
+        // Callback: Reaction timer expired before player triggered weapon fire!
+        // INSTANT GAME OVER / MISSION FAILURE
+        this.player.lifelines = 0;
+        this.player.isDead = true;
+        this.player.health = 0;
+        this.ui.flashDamage();
+        this.ui.showScoreToast('☠️ TIMEOUT! HOSTILE ELIMINATED OPERATIVE!', 'penalty');
+        try { audio.playRifleShoot(); } catch (e) {}
 
-      // 2. Shooting & Combos
-      if (this.input.mouseButtons[0]) {
-        this.player.shoot(() => {
-          const hitResult = this.hitboxManager.fireRaycast(
-            this.renderer.camera,
-            this.enemies,
-            this.levelManager.colliders,
-            this.renderer,
-            this.player.activeWeapon
-          );
+        this.onGameOver('TOO SLOW! QUICK-DRAW REACTION TIMER EXPIRED — ELIMINATED BY HOSTILE FIRE');
+      });
 
-          if (hitResult) {
-            if (hitResult.type === 'headshot') {
-              this.ui.triggerHitmarker(true);
+      // 2. Operative weapon recoil & animation update
+      this.player.updateRailMode(gameDelta);
 
-              if (hitResult.comboCount > 1) {
-                this.ui.triggerCombo(hitResult.comboCount, hitResult.points);
-              } else {
-                this.ui.showScoreToast(`+${hitResult.points} CRITICAL HEADSHOT!`, 'headshot');
-              }
+      // Update Target Lock, Combat Sequence Badges & Reaction Countdown
+      this.ui.setTargetLock(
+        this.railController.isTargetLocked,
+        this.railController.targetEnemy,
+        this.railController.reactionTimer,
+        this.railController.reactionTimeMax,
+        (key) => this.handleCombatInput(key)
+      );
 
-              if (hitResult.isStealth) {
-                this.ui.showScoreToast('+25 SILENT ASSASSIN', 'success');
-              }
-            } else if (hitResult.type === 'body') {
-              this.ui.triggerHitmarker(false);
-              this.ui.showScoreToast(`+${hitResult.points} BODY HIT`, 'body');
-            }
+      // 3. Hardware Hotkeys & 3-Button Breadboard Inputs [C, V, SPACE, TRIGGERS]
+      const candidateKeys = [
+        'KeyC', 'KeyV', 'Space', 'Trigger', 'Enter', 'KeyF', 'KeyZ', 'LMB',
+        'Digit1', 'Digit2', 'Digit3', 'Numpad1', 'Numpad2', 'Numpad3'
+      ];
 
-            // Spawn Loot Drop on Enemy Death
-            if (hitResult.enemyDied && hitResult.enemyPos) {
-              this.pickupManager.spawnDrop(hitResult.enemyPos);
-            }
-          }
-        });
+      for (const k of candidateKeys) {
+        if (this.input.isJustPressed(k)) {
+          this.handleCombatInput(k);
+          break; // Process one distinct input action per frame
+        }
       }
 
-      // 3. Enemy AI & Attack damage
+      // 4. Enemy AI & Attack damage
       this.aiManager.update(gameDelta, this.player, () => {
         this.hitboxManager.registerPlayerHit();
         this.ui.flashDamage();
@@ -268,16 +420,19 @@ class TacticalGame {
       this.levelManager.update(gameDelta);
       this.hitboxManager.update(rawDelta);
 
-      // 5. Bomb Update
+      // 5. Global Bomb Timer Update
       if (this.bomb) {
         this.bomb.update(gameDelta);
-        if (this.bomb.isDetonated) {
-          this.onGameOver('BOMB DETONATED! MISSION FAILED.');
+        this.globalGameTimer = this.bomb.timeRemaining;
+
+        if (this.bomb.isDetonated || this.globalGameTimer <= 0) {
+          this.onGameOver('2-MINUTE GLOBAL DETONATION TIMER EXPIRED! MISSION FAILED.');
         }
 
-        // Check Interact Key [E] to Defuse (within 4.0m)
+        // Automatic Defusal Check if arrived at bomb
         const distToBomb = this.bomb.getDistanceTo(this.player.position);
-        if (distToBomb < 4.0 && this.input.isJustPressed('KeyE')) {
+        const allEnemiesDead = this.enemies.length === 0 || this.enemies.every(e => e.isDead);
+        if ((distToBomb < 4.5 || (allEnemiesDead && distToBomb < 6.0)) && !this.defusalStation.isOpen && !this.bomb.isDefused) {
           this.state = 'DEFUSING';
           this.defusalStation.open(this.currentLevel, this.bomb);
         }
@@ -300,10 +455,12 @@ class TacticalGame {
       // Update bomb ticking inside defusal modal
       if (this.bomb) {
         this.bomb.update(rawDelta);
-        this.defusalStation.update(this.bomb.timeRemaining);
-        if (this.bomb.isDetonated) {
+        this.globalGameTimer = this.bomb.timeRemaining;
+        this.defusalStation.update(this.globalGameTimer);
+
+        if (this.bomb.isDetonated || this.globalGameTimer <= 0) {
           this.defusalStation.close();
-          this.onGameOver('BOMB DETONATED WHILE DISARMING!');
+          this.onGameOver('2-MINUTE GLOBAL DETONATION TIMER EXPIRED WHILE DISARMING!');
         }
       }
 
@@ -326,4 +483,3 @@ class TacticalGame {
 window.addEventListener('DOMContentLoaded', () => {
   new TacticalGame();
 });
-

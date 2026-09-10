@@ -5,7 +5,7 @@ export class Minimap {
     this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
     this.radarRadius = 66; // 160px canvas
     this.sweepAngle = 0;
-    this.worldRange = 45; // 45m radar radius
+    this.worldRange = 60; // 60m radar radius for full level range
   }
 
   render(player, enemies, bomb) {

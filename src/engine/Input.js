@@ -1,4 +1,4 @@
-// Tactical FPS Input & PointerLock Handler
+// Tactical FPS Input & PointerLock Handler with Universal Hardware Trigger Support
 export class InputManager {
   constructor() {
     this.keys = {};
@@ -15,42 +15,99 @@ export class InputManager {
   }
 
   initListeners() {
-    window.addEventListener('keydown', (e) => {
+    const handleKeyDown = (e) => {
       const code = e.code;
-      if (!this.keys[code]) {
-        this.justPressed[code] = true;
+      const key = e.key;
+      const keyCode = e.keyCode || e.which;
+
+      const isFirstPress = !this.keys[code] && !e.repeat;
+
+      if (code) this.keys[code] = true;
+
+      // Check if this is a hardware trigger / firing key:
+      // Spacebar, Enter, F, Z, Numpad 0, or code 32
+      const isSpace = code === 'Space' || key === ' ' || key === 'Spacebar' || keyCode === 32;
+      const isEnter = code === 'Enter' || code === 'NumpadEnter' || key === 'Enter' || keyCode === 13;
+      const isKeyF = code === 'KeyF' || key === 'f' || key === 'F' || keyCode === 70;
+      const isKeyZ = code === 'KeyZ' || key === 'z' || key === 'Z' || keyCode === 90;
+
+      if (isFirstPress) {
+        if (code) this.justPressed[code] = true;
+        if (isSpace || isEnter || isKeyF || isKeyZ) {
+          this.justPressed['Space'] = true;
+          this.justPressed['Trigger'] = true;
+        }
       }
-      this.keys[code] = true;
 
-      // Prevent scrolling on Space
-      if (code === 'Space') {
-        e.preventDefault();
+      if (isSpace || isEnter || isKeyF || isKeyZ) {
+        this.keys['Space'] = true;
+        this.keys['Trigger'] = true;
+        if (e.preventDefault) e.preventDefault();
       }
-    });
+    };
 
-    window.addEventListener('keyup', (e) => {
-      this.keys[e.code] = false;
-    });
+    const handleKeyUp = (e) => {
+      const code = e.code;
+      const key = e.key;
+      const keyCode = e.keyCode || e.which;
 
-    window.addEventListener('mousedown', (e) => {
-      if (!this.isPointerLocked) return;
+      if (code) this.keys[code] = false;
+
+      const isSpace = code === 'Space' || key === ' ' || key === 'Spacebar' || keyCode === 32;
+      const isEnter = code === 'Enter' || code === 'NumpadEnter' || key === 'Enter' || keyCode === 13;
+      const isKeyF = code === 'KeyF' || key === 'f' || key === 'F' || keyCode === 70;
+      const isKeyZ = code === 'KeyZ' || key === 'z' || key === 'Z' || keyCode === 90;
+
+      if (isSpace || isEnter || isKeyF || isKeyZ) {
+        this.keys['Space'] = false;
+        this.keys['Trigger'] = false;
+      }
+    };
+
+    const handleMouseDown = (e) => {
       if (e.button === 0) {
-        if (!this.mouseButtons[0]) this.justPressed['LMB'] = true;
+        if (!this.mouseButtons[0]) {
+          this.justPressed['LMB'] = true;
+          this.justPressed['Trigger'] = true;
+        }
         this.mouseButtons[0] = true;
       }
       if (e.button === 2) {
         if (!this.mouseButtons[2]) this.justPressed['RMB'] = true;
         this.mouseButtons[2] = true;
       }
-    });
+    };
 
-    window.addEventListener('mouseup', (e) => {
+    const handleMouseUp = (e) => {
       if (e.button === 0) this.mouseButtons[0] = false;
       if (e.button === 2) this.mouseButtons[2] = false;
-    });
+    };
+
+    // Attach in capture phase on window and document to intercept before any default UI consumption
+    window.addEventListener('keydown', handleKeyDown, { capture: true, passive: false });
+    document.addEventListener('keydown', handleKeyDown, { capture: true, passive: false });
+
+    window.addEventListener('keyup', handleKeyUp, { capture: true, passive: false });
+    document.addEventListener('keyup', handleKeyUp, { capture: true, passive: false });
+
+    window.addEventListener('mousedown', handleMouseDown, { capture: true });
+    window.addEventListener('mouseup', handleMouseUp, { capture: true });
+
+    // Touch & Pointer events for hardware touchpads / screens
+    window.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' && e.isPrimary && e.button === 0) {
+        this.justPressed['Trigger'] = true;
+        this.justPressed['LMB'] = true;
+        this.mouseButtons[0] = true;
+      }
+    }, { capture: true });
+
+    window.addEventListener('pointerup', () => {
+      this.mouseButtons[0] = false;
+    }, { capture: true });
 
     window.addEventListener('contextmenu', (e) => {
-      e.preventDefault(); // Prevent right-click context menu in game
+      e.preventDefault();
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -67,7 +124,9 @@ export class InputManager {
 
   requestLock() {
     const target = document.getElementById('game-container') || document.body;
-    target.requestPointerLock();
+    if (target && target.requestPointerLock) {
+      target.requestPointerLock();
+    }
   }
 
   exitLock() {

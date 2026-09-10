@@ -114,58 +114,13 @@ export class EnemyAIManager {
     return dist <= hearingRadius;
   }
 
-  // Combat: aim, shoot, and damage player based on Archetype
+  // Combat: aim at player and hold position
   handleCombatState(enemy, player, dist, delta, onPlayerHitCallback) {
     // Face player
     const dx = player.position.x - enemy.root.position.x;
     const dz = player.position.z - enemy.root.position.z;
     const targetAngle = Math.atan2(dx, dz);
     enemy.root.rotation.y = targetAngle;
-
-    // Advance if Juggernaut or Scout
-    if (enemy.archetype === 'juggernaut' || (enemy.archetype === 'scout' && dist > 8)) {
-      const moveDir = new THREE.Vector3(dx, 0, dz).normalize();
-      enemy.root.position.addScaledVector(moveDir, enemy.speed * 0.6 * delta);
-    }
-
-    // -------------------------------------------------------------
-    // Archetype-Specific Shooting Behavior
-    // -------------------------------------------------------------
-    if (enemy.archetype === 'sniper') {
-      // Sniper Laser Lock-on
-      enemy.aimTime = (enemy.aimTime || 0) + delta;
-
-      if (enemy.aimTime >= enemy.aimMaxTime && enemy.shootCooldown <= 0 && !player.isDead) {
-        enemy.shootCooldown = enemy.burstDelay;
-        enemy.aimTime = 0;
-        audio.playSniperShot(dist);
-
-        // Devastating sniper hit
-        player.takeDamage(enemy.damage);
-        if (onPlayerHitCallback) {
-          onPlayerHitCallback();
-        }
-      }
-    } else {
-      // Standard / Juggernaut / Boss Burst Firing
-      if (enemy.shootCooldown <= 0 && !player.isDead) {
-        enemy.shootCooldown = enemy.burstDelay + Math.random() * 0.3;
-        audio.playEnemyGunfire(dist);
-
-        // Hit probability calculation
-        let hitChance = Math.max(0.2, 0.85 - dist * 0.025);
-        if (player.isCrouching) hitChance *= 0.7;
-        if (player.velocity.lengthSq() > 10) hitChance *= 0.75;
-        if (player.isBulletTime) hitChance *= 0.4; // Bullet-Time evasion bonus!
-
-        if (Math.random() < hitChance) {
-          player.takeDamage(enemy.damage);
-          if (onPlayerHitCallback) {
-            onPlayerHitCallback();
-          }
-        }
-      }
-    }
   }
 
   // Suspicious: walk towards noise source

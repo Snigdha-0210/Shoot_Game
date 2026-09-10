@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPERATION: DEFUSE — Field Disarmament Manual (Printable)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --tech-blue: #0088cc;
+      --tech-dark: #0a1118;
+      --tech-red: #cc2233;
+      --tech-green: #009944;
+      --tech-yellow: #b38600;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 2rem;
+      line-height: 1.4;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 2.5rem 3rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    /* Print / Action Toolbar (Hidden in Print) */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .btn {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #0088cc;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #006699;
+    }
+
+    .btn-secondary {
+      background: #0f172a;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-secondary:hover {
+      background: #1e293b;
+    }
+
+    /* Header */
+    .manual-header {
+      text-align: center;
+      border-bottom: 3px solid var(--tech-blue);
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .manual-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #0b2239;
+      letter-spacing: 2px;
+    }
+
+    .manual-subtitle {
+      font-size: 1.05rem;
+      color: var(--tech-blue);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-top: 4px;
+    }
+
+    .intel-box {
+      background: #f0f8ff;
+      border-left: 4px solid var(--tech-blue);
+      padding: 0.9rem 1.2rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      color: #0f2a4a;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 4px;
+      margin-top: 1.8rem;
+      margin-bottom: 0.8rem;
+      letter-spacing: 1px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #0b2239;
+      color: #ffffff;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.88rem;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .code-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: 700;
+    }
+
+    /* Sector Grid */
+    .sector-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1rem;
+      background: #ffffff;
+    }
+
+    .sector-card:nth-child(odd) {
+      background: #fcfdfe;
+    }
+
+    .sector-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #b30000;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sector-solution {
+      font-family: 'Share Tech Mono', monospace;
+      background: #0b2239;
+      color: #00ff88;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .intel-line {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.88rem;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    .clue-list {
+      padding-left: 20px;
+      font-size: 0.92rem;
+    }
+
+    .clue-list li {
+      margin-bottom: 4px;
+    }
+
+    .warning-box {
+      background: #fee2e2;
+      border: 1px solid #dc2626;
+      color: #991b1b;
+      padding: 0.8rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .toolbar {
+        display: none !important;
+      }
+      .container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .sector-card {
+        page-break-inside: avoid;
+      }
+      h2 {
+        page-break-after: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Action Toolbar -->
+    <div class="toolbar">
+      <div style="font-weight: 700; color: #64748b;">
+        CLASSIFIED ORDNANCE DISPOSAL MANUAL
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ PRINT MANUAL (PDF)</button>
+        <a class="btn btn-secondary" href="/BOMB_DEFUSAL_FIELD_MANUAL.pdf" download="BOMB_DEFUSAL_FIELD_MANUAL.pdf">📥 DOWNLOAD PDF FILE</a>
+      </div>
+    </div>
+
+    <!-- Title Header -->
+    <header class="manual-header">
+      <h1 class="manual-title">OPERATION: DEFUSE</h1>
+      <div class="manual-subtitle">TACTICAL 4-SECTOR DISARMAMENT FIELD MANUAL & HARDWARE PROTOCOLS</div>
+    </header>
+
+    <div class="intel-box">
+      <strong>MISSION DIRECTIVE:</strong> This field manual provides certified EOD procedures for all <strong>4 tactical combat sectors</strong>. Hardware operatives using the physical Arduino breadboard interface must inspect the <strong>Serial Number</strong>, active <strong>LED indicators</strong>, and colored wire harness to deduce the exact wire sequence before the <strong>global 2-minute round timer</strong> expires.
+    </div>
+
+    <!-- Section 1: Wire Map -->
+    <h2>SECTION 1: BREADBOARD HARDWARE PINOUT & WIRE HARNESS</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>WIRE COLOR</th>
+          <th>PIN / KEY</th>
+          <th>CIRCUIT ROLE</th>
+          <th>FUNCTION DESCRIPTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: #cc0000;">🔴 RED</strong></td>
+          <td class="code-tag">Pin 1 / Key [1]</td>
+          <td>Primary Power Feed</td>
+          <td>Carries high-voltage core charge; severs main generator loop.</td>
+        </tr>
+        <tr>
+          <td><strong style="color: #008833;">🟢 GREEN</strong></td>
+          <td class="code-tag">Pin 2 / Key [2]</td>
+          <td>Chemical Neutralizer</td>
+          <td>Flushes coolant reactor lines and disables chemical reactants.</td>
+        </tr>
+        <tr>
+          <td><strong style="color: #b38600;">🟡 YELLOW</strong></td>
+          <td class="code-tag">Pin 3 / Key [3]</td>
+          <td>Logic Bypass</td>
+          <td>Drains discharge capacitor and permanently bypasses logic relays.</td>
+        </tr>
+        <tr>
+          <td><strong style="color: #1e293b;">⚫ BLACK</strong></td>
+          <td class="code-tag">Pin 4 / Key [4]</td>
+          <td>Terminal Ground</td>
+          <td>Isolates internal induction coils and prevents feedback surge.</td>
+        </tr>
+        <tr>
+          <td><strong style="color: #0066cc;">🔵 BLUE</strong></td>
+          <td class="code-tag">Pin 5 / Key [5]</td>
+          <td>Microprocessor Clock</td>
+          <td>Freezes internal clock frequency and halts ignition trigger pulse.</td>
+        </tr>
+        <tr>
+          <td><strong style="color: #64748b;">⚪ WHITE</strong></td>
+          <td class="code-tag">Pin 6 / Key [6]</td>
+          <td>Containment Stabilizer</td>
+          <td>Locks pressure relief valves and seals radioactive core.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Section 2: Combat Rules -->
+    <h2>SECTION 2: ON-RAIL COMBAT & 3-BUTTON CIPHER OVERRIDES [C, V, SPACE]</h2>
+    <div style="font-size: 0.95rem; margin-bottom: 1.5rem;">
+      <ul style="padding-left: 20px;">
+        <li><strong>Lock-On Engagement:</strong> Operative moves on-rail and automatically locks onto <strong>2 to 3 distant, scattered hostiles per sector</strong> spaced across long corridor sprints.</li>
+        <li><strong>Strict Engagement Stop:</strong> Movement stops when an enemy is targeted. You <strong>cannot advance</strong> until the hostile is neutralized.</li>
+        <li><strong>3-Button Hardware Combat System:</strong> When locked onto an enemy, a randomized sequence is generated strictly from 3 buttons:
+          <ul>
+            <li><strong>Allowed Inputs:</strong> <strong style="color: #0088cc;">[C: Circuit C]</strong>, <strong style="color: #009944;">[V: Circuit V]</strong>, and <strong style="color: #b38600;">[SPACE: Kinetic Trigger]</strong> (or click the on-screen badges).</li>
+          </ul>
+        </li>
+        <li><strong>Tightening Reaction Windows:</strong> Input the correct sequence before the countdown expires:
+          <ul>
+            <li><strong>Sector 01:</strong> 1–2 buttons &bull; <code>3.0s ➔ 2.6s ➔ 2.4s</code> reaction window</li>
+            <li><strong>Sector 02:</strong> 2 buttons &bull; <code>2.4s ➔ 2.2s ➔ 2.0s</code> reaction window</li>
+            <li><strong>Sector 03:</strong> 2–3 buttons &bull; <code>2.0s ➔ 1.8s ➔ 1.7s</code> reaction window</li>
+            <li><strong>Sector 04:</strong> 3 buttons (Guards) / 4 buttons (General Malikov Boss) &bull; <code>1.8s ➔ 1.6s ➔ 2.4s</code> (Boss Showdown!)</li>
+          </ul>
+        </li>
+        <li><strong>Wrong Key Penalty:</strong> Entering an incorrect cipher plays an error buzzer and subtracts <strong>-0.25s</strong> from the reaction timer.</li>
+        <li><strong>Timeout Failure:</strong> If the countdown timer expires, the hostile fires a fatal shot for <strong>instant mission failure</strong>!</li>
+        <li><strong>Global Timer:</strong> The 4-sector campaign runs on a single continuous <strong>2-minute (120s)</strong> countdown clock.</li>
+      </ul>
+    </div>
+
+    <!-- Section 3: Sector Protocols -->
+    <h2>SECTION 3: PROCEDURAL SECTOR DISARMAMENT PROTOCOLS & LOGIC MATRICES</h2>
+    <p style="font-size: 0.95rem; margin-bottom: 1rem; color: #475569;">
+      <em>NOTICE: Serial numbers and LED indicator banks are procedurally randomized on every single deployment. Operators must apply the following priority decision matrices to deduce the active wire sequence.</em>
+    </p>
+
+    <!-- Sector 1 -->
+    <div class="sector-card">
+      <div class="sector-title">
+        <span>SECTOR 1: COASTAL INFILTRATION YARD (MK-I FUSE)</span>
+        <span class="sector-solution">PROCEDURAL DECISION MATRIX</span>
+      </div>
+      <table style="margin-top: 8px; margin-bottom: 8px;">
+        <thead>
+          <tr>
+            <th style="width: 20%;">PRIORITY</th>
+            <th style="width: 50%;">HARDWARE CONDITION</th>
+            <th style="width: 30%;">DISARMAMENT ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Rule 1</strong></td>
+            <td>If Serial ends with an <strong>ODD digit</strong> AND <strong>BLUE LED is ON</strong></td>
+            <td>Cut <strong style="color:#0066cc;">BLUE [5]</strong> ➔ <strong style="color:#b38600;">YELLOW [3]</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Rule 2</strong></td>
+            <td>Else if <strong>RED LED is ON</strong> AND <strong>GREEN LED is OFF</strong></td>
+            <td>Cut <strong style="color:#008833;">GREEN [2]</strong> ➔ <strong style="color:#cc0000;">RED [1]</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Rule 3</strong></td>
+            <td>Else if Serial ends with an <strong>EVEN digit</strong></td>
+            <td>Cut <strong style="color:#cc0000;">RED [1]</strong> ➔ <strong style="color:#1e293b;">BLACK [4]</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Rule 4 (Fallback)</strong></td>
+            <td>Otherwise</td>
+            <td>Cut <strong style="color:#64748b;">WHITE [6]</strong> ➔ <strong style="color:#b38600;">YELLOW [3]</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sector 2 -->
+    <div class="sector-card">
+      <div class="sector-title">
+        <span>SECTOR 2: SUBTERRANEAN BUNKER & SERVERS (MK-II CAPACITOR)</span>
+        <span class="sector-solution">PROCEDURAL DECISION MATRIX</span>
+      </div>
+      <table style="margin-top: 8px; margin-bottom: 8px;">
+        <thead>
+          <tr>
+            <th style="width: 20%;">PRIORITY</th>
+            <th style="width: 50%;">HARDWARE CONDITION</th>
+            <th style="width: 30%;">DISARMAMENT ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Rule 1</strong></td>
+            <td>If both <strong>RED & GREEN LEDs are ACTIVE</strong></td>
+            <td>Cut <strong style="color:#b38600;">YELLOW [3]</strong> ➔ <strong style="color:#64748b;">WHITE [6]</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Rule 2</strong></td>
+            <td>Else if Serial ends with an <strong>EVEN digit</strong> AND <strong>YELLOW LED is ON</strong></td>
+            <td>Cut <strong style="color:#1e293b;">BLACK [4]</strong> ➔ <strong style="color:#008833;">GREEN [2]</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Rule 3</strong></td>
+            <td>Else if <strong>BLUE LED is ACTIVE (ON)</strong></td>
+            <td>Cut <strong style="color:#cc0000;">RED [1]</strong> ➔ <strong style="color:#0066cc;">BLUE [5]</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Rule 4 (Fallback)</strong></td>
+            <td>Otherwise</td>
+            <td>Cut <strong style="color:#64748b;">WHITE [6]</strong> ➔ <strong style="color:#1e293b;">BLACK [4]</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sector 3 -->
+    <div class="sector-card">
+      <div class="sector-title">
+        <span>SECTOR 3: RESEARCH SILO & CATWALKS (MK-III BIO-CHEMICAL CORE)</span>
+        <span class="sector-solution">2-STAGE LOGIC MATRIX</span>
+      </div>
+      <table style="margin-top: 8px; margin-bottom: 8px;">
+        <thead>
+          <tr>
+            <th style="width: 20%;">STAGE</th>
+            <th style="width: 50%;">HARDWARE CONDITION</th>
+            <th style="width: 30%;">DISARMAMENT ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Stage 1: Valve Seal</strong></td>
+            <td>If <strong>BLUE LED is ON</strong> and <strong>RED LED is OFF</strong><br><em>Otherwise</em></td>
+            <td>Cut <strong style="color:#64748b;">WHITE [6]</strong><br>Cut <strong style="color:#b38600;">YELLOW [3]</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Stage 2: Neutralizer</strong></td>
+            <td>If Serial contains letter <strong>'V'</strong>, <strong>'C'</strong>, or <strong>'X'</strong><br><em>Otherwise</em></td>
+            <td>Cut <strong style="color:#008833;">GREEN [2]</strong><br>Cut <strong style="color:#1e293b;">BLACK [4]</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sector 4 -->
+    <div class="sector-card">
+      <div class="sector-title">
+        <span>SECTOR 4: FORTRESS COMMAND CITADEL (MK-IV RESONATOR - GRAND FINALE)</span>
+        <span class="sector-solution">2-STAGE LOGIC MATRIX</span>
+      </div>
+      <table style="margin-top: 8px; margin-bottom: 8px;">
+        <thead>
+          <tr>
+            <th style="width: 20%;">STAGE</th>
+            <th style="width: 50%;">HARDWARE CONDITION</th>
+            <th style="width: 30%;">DISARMAMENT ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Stage 1: Grid Decouple</strong></td>
+            <td>If <strong>EXACTLY 3 or 4 LEDs ARE ACTIVE</strong><br>Else if <strong>EXACTLY 2 LEDs ARE ACTIVE</strong><br><em>Otherwise (0 or 1 active)</em></td>
+            <td>Cut <strong style="color:#cc0000;">RED [1]</strong><br>Cut <strong style="color:#b38600;">YELLOW [3]</strong><br>Cut <strong style="color:#0066cc;">BLUE [5]</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Stage 2: Grounding</strong></td>
+            <td>If Serial ends with an <strong>EVEN digit</strong><br><em>Otherwise (ends with an ODD digit)</em></td>
+            <td>Cut <strong style="color:#1e293b;">BLACK [4]</strong><br>Cut <strong style="color:#64748b;">WHITE [6]</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 4: Summary Table -->
+    <h2>SECTION 4: QUICK ENGAGEMENT & PROTOCOL OVERVIEW</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>SECTOR</th>
+          <th>SECTOR NAME</th>
+          <th>HOSTILES</th>
+          <th>COMBAT CIPHER (QTE)</th>
+          <th>PUZZLE TYPE</th>
+          <th>CUT STAGES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sector 01</strong></td>
+          <td>Coastal Infiltration Yard</td>
+          <td>2–3 Scattered Scouts</td>
+          <td><code>1–2 Keys (3.0s ➔ 2.4s)</code></td>
+          <td>Tactical Fuse Matrix</td>
+          <td>2 Wires</td>
+        </tr>
+        <tr>
+          <td><strong>Sector 02</strong></td>
+          <td>Subterranean Bunker</td>
+          <td>2–3 Distant Guards</td>
+          <td><code>2 Keys (2.4s ➔ 2.0s)</code></td>
+          <td>Circuit Logic Matrix</td>
+          <td>2 Wires</td>
+        </tr>
+        <tr>
+          <td><strong>Sector 03</strong></td>
+          <td>Research Silo & Catwalks</td>
+          <td>2–3 Catwalk Foes</td>
+          <td><code>2–3 Keys (2.0s ➔ 1.7s)</code></td>
+          <td>Bio-Chemical Pressure</td>
+          <td>2 Wires</td>
+        </tr>
+        <tr>
+          <td><strong>Sector 04</strong></td>
+          <td>Fortress Command Citadel</td>
+          <td>2–3 Foes + <strong>GENERAL MALIKOV BOSS</strong></td>
+          <td><code>3–4 Keys (1.8s ➔ 2.4s Boss)</code></td>
+          <td>Quantum Resonator (Grand Finale)</td>
+          <td>2 Wires</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warning-box">
+      ⚠️ <strong>CRITICAL WARNING:</strong> Severing an incorrect wire applies an immediate <strong>-20s penalty</strong> to the global round clock. If the quick-draw reaction timer hits 0.0s or the global round clock reaches 00:00.00, catastrophic detonation/elimination occurs immediately.
+    </div>
+  </div>
+</body>
+</html>

@@ -13,7 +13,8 @@ export class LevelManager {
     this.enemies = [];
     this.animatedObjects = []; // Rotating sirens, pulsating vats, holograms
     this.bomb = null;
-    this.playerSpawn = { x: 0, y: 1.7, z: 0, rotY: 0 };
+    this.playerSpawn = { x: 0, y: 0, z: 24, rotY: 0 };
+    this.railWaypoints = [];
     this.currentLevel = 1;
   }
 
@@ -27,15 +28,20 @@ export class LevelManager {
       this.buildLevel2(aiManager);
     } else if (levelNumber === 3) {
       this.buildLevel3(aiManager);
-    } else {
+    } else if (levelNumber === 4) {
       this.buildLevel4(aiManager);
+    } else if (levelNumber === 5) {
+      this.buildLevel5(aiManager);
+    } else {
+      this.buildLevel6(aiManager);
     }
 
     return {
       bomb: this.bomb,
       enemies: this.enemies,
       colliders: this.colliders,
-      playerSpawn: this.playerSpawn
+      playerSpawn: this.playerSpawn,
+      railWaypoints: this.railWaypoints
     };
   }
 
@@ -43,6 +49,7 @@ export class LevelManager {
     if (aiManager) aiManager.clear();
     this.enemies = [];
     this.animatedObjects = [];
+    this.railWaypoints = [];
 
     if (this.bomb) {
       this.bomb.destroy();
@@ -52,10 +59,6 @@ export class LevelManager {
     this.levelObjects.forEach(obj => {
       this.scene.remove(obj);
       if (obj.geometry) obj.geometry.dispose();
-      if (obj.material) {
-        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
-        else obj.material.dispose();
-      }
     });
 
     this.levelObjects = [];
@@ -78,529 +81,552 @@ export class LevelManager {
   // --- LEVEL 1: RAINY EUROPEAN COBBLESTONE ALLEYWAY ---
   buildLevel1(aiManager) {
     this.renderer.setupRain(true);
-    this.playerSpawn = { x: 0, y: 1.7, z: 20, rotY: 0 };
+    this.playerSpawn = { x: 0, y: 0, z: 28, rotY: 0 };
 
-    // 1. Wet Reflective Cobblestone Street Ground
+    // 1. Wet Cobblestone Ground
     const cobbleTex = TextureGenerator.createCobblestoneTexture();
     const groundGeom = new THREE.PlaneGeometry(80, 80);
     const groundMat = new THREE.MeshStandardMaterial({
       map: cobbleTex,
-      roughness: 0.25,
-      metalness: 0.35
+      roughness: 0.35,
+      metalness: 0.25
     });
     const ground = new THREE.Mesh(groundGeom, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     this.addObj(ground);
 
-    // 2. Flanking European Historic Townhouses & Facades
+    // 2. Flanking Buildings
     const wallTex1 = TextureGenerator.createBuildingWallTexture('#261e18');
     const wallTex2 = TextureGenerator.createBuildingWallTexture('#1e242d');
 
-    // Left Street Buildings (x = -8.5)
-    for (let z = 22; z >= -30; z -= 13) {
-      this.createEuropeanBuilding(-8.5, 0, z, 7, 10, 12, wallTex1, true);
+    for (let z = 28; z >= -34; z -= 12) {
+      this.createEuropeanBuilding(-8.5, 0, z, 7, 10, 11, wallTex1, true);
+      this.createEuropeanBuilding(8.5, 0, z, 7, 10, 11, wallTex2, true);
     }
+    this.createWall(0, 5, -36, 28, 10, 3, 0x1c1713);
 
-    // Right Street Buildings (x = 8.5)
-    for (let z = 22; z >= -30; z -= 13) {
-      this.createEuropeanBuilding(8.5, 0, z, 7, 10, 12, wallTex2, true);
-    }
+    // Neon signs & Street Lamps
+    this.createNeonSign(-4.8, 6.5, 4, 'BAR NOCTURNE', 0xff0077);
+    this.createNeonSign(4.8, 6.5, -8, 'HOTEL PARIS', 0x00f0ff);
 
-    // End of Alley Courtyard Wall & Historic Archway
-    this.createWall(0, 5, -34, 28, 10, 3, 0x1c1713);
-
-    // 3. Neon Sign: "BAR NOCTURNE"
-    this.createNeonSign(-4.8, 6.5, 2, 'BAR NOCTURNE', 0xff0077);
-
-    // 4. Vintage Street Lamps with Glowing Halos
-    const lampPositions = [
-      [-4.2, 4.5, 14],
-      [4.2, 4.5, 4],
-      [-4.2, 4.5, -6],
-      [4.2, 4.5, -16],
-      [0, 5, -28]
-    ];
-
-    lampPositions.forEach(([lx, ly, lz]) => {
+    [[-4.2, 4.5, 18], [4.2, 4.5, 6], [-4.2, 4.5, -6], [4.2, 4.5, -18], [0, 5, -28]].forEach(([lx, ly, lz]) => {
       this.createVintageStreetLamp(lx, ly, lz);
     });
 
-    // 5. Props tucked against sides
-    this.createWoodenBarrel(-4.6, 0, 12);
-    this.createWoodenBarrel(-4.8, 0, 11.2);
+    // Props
+    this.createWoodenBarrel(-4.6, 0, 16);
     this.createCrate(4.6, 0, 8, 1.8, 1.6, 1.8);
-    this.createWoodenBarrel(4.6, 0, -2);
-    this.createCrate(-4.6, 0, -8, 2.0, 1.5, 2.0);
-    this.createWoodenBarrel(-4.6, 0, -9.5);
+    this.createWoodenBarrel(-4.6, 0, -4);
+    this.createCrate(-4.6, 0, -12, 2.0, 1.5, 2.0);
 
-    // 6. Tactical C4 Bomb Unit
+    // Bomb
     const palletGeom = new THREE.BoxGeometry(2.4, 0.2, 2.4);
     const palletMat = new THREE.MeshStandardMaterial({ color: 0x4a3a24, roughness: 0.8 });
     const pallet = new THREE.Mesh(palletGeom, palletMat);
-    pallet.position.set(0, 0.1, -22);
-    pallet.receiveShadow = true;
+    pallet.position.set(0, 0.1, -28);
     this.addObj(pallet);
 
-    this.bomb = new Bomb(this.scene, 0, 0.2, -22, 90);
+    this.bomb = new Bomb(this.scene, 0, 0.2, -28, 120);
 
-    // 7. Enemy Archetypes: 3 Scouts + 1 Heavy Juggernaut
-    const e1 = new Enemy(this.scene, -2.5, 0, 8, [
-      new THREE.Vector3(-2.5, 0, 10),
-      new THREE.Vector3(-2.5, 0, -2),
-      new THREE.Vector3(2.5, 0, -2)
-    ], 'scout');
-
-    const e2 = new Enemy(this.scene, 2.5, 0, -4, [
-      new THREE.Vector3(2.5, 0, -2),
-      new THREE.Vector3(2.5, 0, -12),
-      new THREE.Vector3(-2.5, 0, -12)
-    ], 'scout');
-
-    const e3 = new Enemy(this.scene, -2.8, 0, -14, [
-      new THREE.Vector3(-2.8, 0, -14),
-      new THREE.Vector3(2.8, 0, -14)
-    ], 'scout');
-
-    // Heavy Juggernaut defending the bomb courtyard
-    const e4 = new Enemy(this.scene, 0, 0, -20, [
-      new THREE.Vector3(-2.5, 0, -20),
-      new THREE.Vector3(2.5, 0, -20)
-    ], 'juggernaut');
-
-    this.enemies = [e1, e2, e3, e4];
+    // Randomized 2-3 Distant & Scattered Enemies Along Alleyway
+    const enemyCount1 = Math.random() < 0.5 ? 2 : 3; // strictly 2 or 3 enemies
+    if (enemyCount1 === 2) {
+      const e1 = new Enemy(this.scene, -3.5, 0, 12, [], 'scout');
+      const e2 = new Enemy(this.scene, 0, 0, -14, [], 'juggernaut');
+      this.enemies = [e1, e2];
+      this.railWaypoints = [
+        new THREE.Vector3(0, 0, 28),
+        new THREE.Vector3(0, 0, 18),
+        new THREE.Vector3(0, 0, -8),
+        new THREE.Vector3(0, 0, -25.5)
+      ];
+    } else {
+      const e1 = new Enemy(this.scene, -3.5, 0, 14, [], 'scout');
+      const e2 = new Enemy(this.scene, 3.5, 0, 0, [], 'scout');
+      const e3 = new Enemy(this.scene, 0, 0, -14, [], 'juggernaut');
+      this.enemies = [e1, e2, e3];
+      this.railWaypoints = [
+        new THREE.Vector3(0, 0, 28),
+        new THREE.Vector3(0, 0, 20),
+        new THREE.Vector3(0, 0, 6),
+        new THREE.Vector3(0, 0, -8),
+        new THREE.Vector3(0, 0, -25.5)
+      ];
+    }
     this.enemies.forEach(e => aiManager.addEnemy(e));
   }
 
   // --- LEVEL 2: SUBTERRANEAN BUNKER & SERVERS ---
   buildLevel2(aiManager) {
     this.renderer.setupRain(false);
-    this.playerSpawn = { x: 0, y: 1.7, z: 24, rotY: 0 };
+    this.playerSpawn = { x: 0, y: 0, z: 28, rotY: 0 };
 
-    const floorGeom = new THREE.PlaneGeometry(70, 70);
+    const floorGeom = new THREE.PlaneGeometry(80, 80);
     const floorMat = new THREE.MeshStandardMaterial({ color: 0x181c22, roughness: 0.4, metalness: 0.8 });
     const floor = new THREE.Mesh(floorGeom, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     this.addObj(floor);
 
-    const ceilGeom = new THREE.PlaneGeometry(70, 70);
+    const ceilGeom = new THREE.PlaneGeometry(80, 80);
     const ceilMat = new THREE.MeshStandardMaterial({ color: 0x0a0d12, roughness: 0.9 });
     const ceil = new THREE.Mesh(ceilGeom, ceilMat);
     ceil.position.y = 5.5;
     ceil.rotation.x = Math.PI / 2;
     this.addObj(ceil);
 
-    this.createWall(0, 2.75, -30, 50, 5.5, 1.5, 0x222a36);
-    this.createWall(0, 2.75, 30, 50, 5.5, 1.5, 0x222a36);
-    this.createWall(-20, 2.75, 0, 1.5, 5.5, 60, 0x222a36);
-    this.createWall(20, 2.75, 0, 1.5, 5.5, 60, 0x222a36);
-
-    this.createWall(-8, 2.75, 12, 14, 5.5, 1.2, 0x1d242e);
-    this.createWall(8, 2.75, 4, 14, 5.5, 1.2, 0x1d242e);
-    this.createWall(-8, 2.75, -8, 14, 5.5, 1.2, 0x1d242e);
+    this.createWall(0, 2.75, -34, 50, 5.5, 1.5, 0x222a36);
+    this.createWall(0, 2.75, 34, 50, 5.5, 1.5, 0x222a36);
+    this.createWall(-20, 2.75, 0, 1.5, 5.5, 70, 0x222a36);
+    this.createWall(20, 2.75, 0, 1.5, 5.5, 70, 0x222a36);
 
     for (let i = -1; i <= 1; i++) {
-      this.createServerRack(-14 + i * 4, 0, 4);
-      this.createServerRack(14 - i * 4, 0, -4);
+      this.createServerRack(-14 + i * 4, 0, 6);
+      this.createServerRack(14 - i * 4, 0, -6);
     }
 
-    // Rotating Red Emergency Siren Beacons
-    this.createSpinningSiren(-12, 4.5, 12);
+    this.createSpinningSiren(-12, 4.5, 14);
     this.createSpinningSiren(12, 4.5, 0);
     this.createSpinningSiren(0, 4.5, -20);
 
-    this.bomb = new Bomb(this.scene, 0, 0, -22, 80);
+    this.bomb = new Bomb(this.scene, 0, 0, -26, 120);
 
-    // Archetypes: 4 Scouts + 2 Heavy Juggernauts
-    const e1 = new Enemy(this.scene, 4, 0, 14, [new THREE.Vector3(8, 0, 14), new THREE.Vector3(-4, 0, 14)], 'scout');
-    const e2 = new Enemy(this.scene, -10, 0, 6, [new THREE.Vector3(-10, 0, 6), new THREE.Vector3(-10, 0, -2)], 'scout');
-    const e3 = new Enemy(this.scene, 10, 0, -2, [new THREE.Vector3(10, 0, 2), new THREE.Vector3(2, 0, -2)], 'scout');
-    const e4 = new Enemy(this.scene, -4, 0, -12, [new THREE.Vector3(-4, 0, -12), new THREE.Vector3(4, 0, -12)], 'scout');
-    const e5 = new Enemy(this.scene, -6, 0, -18, [new THREE.Vector3(-6, 0, -18), new THREE.Vector3(-2, 0, -18)], 'juggernaut');
-    const e6 = new Enemy(this.scene, 6, 0, -18, [new THREE.Vector3(6, 0, -18), new THREE.Vector3(2, 0, -18)], 'juggernaut');
-
-    this.enemies = [e1, e2, e3, e4, e5, e6];
+    // Randomized 2-3 Distant & Scattered Bunker Enemies
+    const enemyCount2 = Math.random() < 0.5 ? 2 : 3; // strictly 2 or 3 enemies
+    if (enemyCount2 === 2) {
+      const e1 = new Enemy(this.scene, 3.5, 0, 12, [], 'scout');
+      const e2 = new Enemy(this.scene, 0, 0, -14, [], 'juggernaut');
+      this.enemies = [e1, e2];
+      this.railWaypoints = [
+        new THREE.Vector3(0, 0, 28),
+        new THREE.Vector3(0, 0, 18),
+        new THREE.Vector3(0, 0, -8),
+        new THREE.Vector3(0, 0, -23.8)
+      ];
+    } else {
+      const e1 = new Enemy(this.scene, 3.5, 0, 14, [], 'scout');
+      const e2 = new Enemy(this.scene, -4.0, 0, 1, [], 'sniper');
+      const e3 = new Enemy(this.scene, 0, 0, -14, [], 'juggernaut');
+      this.enemies = [e1, e2, e3];
+      this.railWaypoints = [
+        new THREE.Vector3(0, 0, 28),
+        new THREE.Vector3(0, 0, 20),
+        new THREE.Vector3(0, 0, 7),
+        new THREE.Vector3(0, 0, -8),
+        new THREE.Vector3(0, 0, -23.8)
+      ];
+    }
     this.enemies.forEach(e => aiManager.addEnemy(e));
   }
 
-  // --- LEVEL 3: RESEARCH SILO & CATWALKS ---
+  // --- LEVEL 3: RESEARCH SILO & TOXIC CATWALKS ---
   buildLevel3(aiManager) {
     this.renderer.setupRain(false);
-    this.playerSpawn = { x: 0, y: 1.7, z: 22, rotY: 0 };
+    this.playerSpawn = { x: 0, y: 0, z: 28, rotY: 0 };
 
-    const floorGeom = new THREE.CylinderGeometry(32, 32, 1, 16);
+    const floorGeom = new THREE.CylinderGeometry(38, 38, 1, 16);
     const floorMat = new THREE.MeshStandardMaterial({ color: 0x141a22, roughness: 0.6, metalness: 0.5 });
     const floor = new THREE.Mesh(floorGeom, floorMat);
     floor.position.y = -0.5;
     floor.receiveShadow = true;
     this.addObj(floor);
 
-    this.createWall(0, 6, -26, 50, 12, 2, 0x11161d);
-    this.createWall(0, 6, 26, 50, 12, 2, 0x11161d);
-    this.createWall(-26, 6, 0, 2, 12, 50, 0x11161d);
-    this.createWall(26, 6, 0, 2, 12, 50, 0x11161d);
+    this.createWall(0, 6, -34, 50, 12, 2, 0x11161d);
+    this.createWall(0, 6, 34, 50, 12, 2, 0x11161d);
+    this.createWall(-26, 6, 0, 2, 12, 70, 0x11161d);
+    this.createWall(26, 6, 0, 2, 12, 70, 0x11161d);
 
-    // Glowing Toxic Green Radioactive Coolant Vats
+    // Glowing Toxic Green Vats
     this.createChemicalVat(-10, 0, 10, 0x00ff88);
     this.createChemicalVat(10, 0, 10, 0x00ff88);
     this.createChemicalVat(-12, 0, -8, 0x00ff88);
     this.createChemicalVat(12, 0, -8, 0x00ff88);
 
-    // Elevated Sniper Catwalks
     this.createCatwalk(-12, 4.0, 0, 6, 16);
     this.createCatwalk(12, 4.0, 0, 6, 16);
 
-    this.createWall(0, 1.5, 0, 14, 3, 2, 0x223344);
-    this.createWall(-6, 1.5, -6, 2, 3, 12, 0x223344);
-    this.createWall(6, 1.5, -6, 2, 3, 12, 0x223344);
-
     this.createFloodlight(-8, 8, 0, 0x00f0ff);
     this.createFloodlight(8, 8, 0, 0x00f0ff);
-    this.createFloodlight(0, 8, -18, 0x00ff88);
 
-    this.bomb = new Bomb(this.scene, 0, 0, -20, 75);
+    this.bomb = new Bomb(this.scene, 0, 0, -25, 120);
 
-    // Archetypes: 3 Scouts + 2 Juggernauts + 2 Catwalk Snipers (with visible red laser beams)
-    const e1 = new Enemy(this.scene, -4, 0, 14, [new THREE.Vector3(-8, 0, 14), new THREE.Vector3(-2, 0, 14)], 'scout');
-    const e2 = new Enemy(this.scene, 4, 0, 14, [new THREE.Vector3(8, 0, 14), new THREE.Vector3(2, 0, 14)], 'scout');
-    const e3 = new Enemy(this.scene, 0, 0, 2, [new THREE.Vector3(-4, 0, 2), new THREE.Vector3(4, 0, 2)], 'scout');
-
-    const e4 = new Enemy(this.scene, -5, 0, -10, [new THREE.Vector3(-5, 0, -10), new THREE.Vector3(-5, 0, -16)], 'juggernaut');
-    const e5 = new Enemy(this.scene, 5, 0, -10, [new THREE.Vector3(5, 0, -10), new THREE.Vector3(5, 0, -16)], 'juggernaut');
-
-    // High Perch Catwalk Snipers!
-    const e6 = new Enemy(this.scene, -12, 4.0, -2, [], 'sniper');
-    const e7 = new Enemy(this.scene, 12, 4.0, -2, [], 'sniper');
-
-    this.enemies = [e1, e2, e3, e4, e5, e6, e7];
+    // Randomized 2-3 Distant & Scattered Silo Enemies
+    const enemyCount3 = Math.random() < 0.5 ? 2 : 3; // strictly 2 or 3 enemies
+    if (enemyCount3 === 2) {
+      const e1 = new Enemy(this.scene, -3.5, 0, 12, [], 'scout');
+      const e2 = new Enemy(this.scene, 0, 0, -13, [], 'juggernaut');
+      this.enemies = [e1, e2];
+      this.railWaypoints = [
+        new THREE.Vector3(0, 0, 28),
+        new THREE.Vector3(0, 0, 18),
+        new THREE.Vector3(0, 0, -7),
+        new THREE.Vector3(0, 0, -22.5)
+      ];
+    } else {
+      const e1 = new Enemy(this.scene, -3.5, 0, 14, [], 'scout');
+      const e2 = new Enemy(this.scene, 12, 4.0, 1, [], 'sniper');
+      const e3 = new Enemy(this.scene, 0, 0, -13, [], 'juggernaut');
+      this.enemies = [e1, e2, e3];
+      this.railWaypoints = [
+        new THREE.Vector3(0, 0, 28),
+        new THREE.Vector3(0, 0, 20),
+        new THREE.Vector3(0, 0, 7),
+        new THREE.Vector3(0, 0, -7),
+        new THREE.Vector3(0, 0, -22.5)
+      ];
+    }
     this.enemies.forEach(e => aiManager.addEnemy(e));
   }
 
-  // --- LEVEL 4: FORTRESS COMMAND CITADEL (BOSS FINALE) ---
+  // --- LEVEL 4: FORTRESS COMMAND CITADEL ---
   buildLevel4(aiManager) {
     this.renderer.setupRain(false);
-    this.playerSpawn = { x: 0, y: 1.7, z: 24, rotY: 0 };
+    this.playerSpawn = { x: 0, y: 0, z: 28, rotY: 0 };
 
-    const floorGeom = new THREE.PlaneGeometry(70, 70);
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0x0d1117, roughness: 0.15, metalness: 0.85 });
+    // 1. Polished Obsidian / Metallic High-Gloss Floor
+    const floorGeom = new THREE.PlaneGeometry(80, 80);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x0a0e14,
+      roughness: 0.12,
+      metalness: 0.88,
+      emissive: 0x050a12,
+      emissiveIntensity: 0.2
+    });
     const floor = new THREE.Mesh(floorGeom, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     this.addObj(floor);
 
-    this.createWall(0, 5, -30, 60, 10, 3, 0x151c24);
-    this.createWall(0, 5, 30, 60, 10, 3, 0x151c24);
-    this.createWall(-30, 5, 0, 3, 10, 60, 0x151c24);
-    this.createWall(30, 5, 0, 3, 10, 60, 0x151c24);
+    // Perimeter Monolith Fortress Walls
+    this.createWall(0, 6, -34, 60, 12, 3, 0x111722);
+    this.createWall(0, 6, 34, 60, 12, 3, 0x111722);
+    this.createWall(-30, 6, 0, 3, 12, 70, 0x111722);
+    this.createWall(30, 6, 0, 3, 12, 70, 0x111722);
 
+    // Massive Citadel Pillars with Golden Trim
     for (let x of [-12, 12]) {
-      for (let z of [-14, 0, 12]) {
+      for (let z of [-14, 0, 14]) {
         this.createCitadelPillar(x, 0, z);
       }
     }
 
-    // Elevated Boss Dais / Throne
-    this.createWall(0, 0.4, -22, 12, 0.8, 8, 0xd4af37);
+    // Flanking Command Workstations
+    for (let z of [10, -2, -14]) {
+      this.createServerRack(-8, 0, z);
+      this.createServerRack(8, 0, z);
+    }
 
-    // 3D Holographic Tactical War Table
-    this.createHologramTable(0, 0, 4);
+    // Hologram Command Table placed to the flank (clear central rail corridor) & Gold Floodlights
+    this.createHologramTable(-10, 0, 2);
+    this.createFloodlight(0, 10, 0, 0xffd700);
+    this.createFloodlight(-8, 8, -12, 0x00f0ff);
+    this.createFloodlight(8, 8, -12, 0xff0055);
 
-    // Red Security Laser Tripwires
-    this.createLaserTripwire(-14, 0.6, 10, 14, 0.6, 10);
-    this.createLaserTripwire(-14, 0.6, -6, 14, 0.6, -6);
+    // Rotating Warning Sirens
+    this.createSpinningSiren(-12, 8, 12);
+    this.createSpinningSiren(12, 8, 12);
 
-    this.createWall(-6, 1.5, 6, 10, 3, 1.5, 0x2a3644);
-    this.createWall(6, 1.5, 6, 10, 3, 1.5, 0x2a3644);
-    this.createWall(0, 1.5, -10, 16, 3, 2, 0x2a3644);
+    // Neon Level Banner
+    this.createNeonSign(0, 8.5, -30, 'COMMAND CITADEL', 0xffd700);
 
-    this.createFloodlight(0, 9, 0, 0xffd700);
-    this.createSpinningSiren(-20, 6, -16);
-    this.createSpinningSiren(20, 6, -16);
+    this.bomb = new Bomb(this.scene, 0, 0, -24, 120);
 
-    this.bomb = new Bomb(this.scene, 0, 0.8, -22, 65);
-
-    // Archetypes: 4 Elite Scouts + 2 Snipers + Citadel Commander Boss!
-    const e1 = new Enemy(this.scene, -8, 0, 16, [new THREE.Vector3(-8, 0, 16), new THREE.Vector3(-2, 0, 16)], 'scout');
-    const e2 = new Enemy(this.scene, 8, 0, 16, [new THREE.Vector3(8, 0, 16), new THREE.Vector3(2, 0, 16)], 'scout');
-    const e3 = new Enemy(this.scene, -14, 0, 6, [new THREE.Vector3(-14, 0, 6), new THREE.Vector3(-14, 0, -4)], 'scout');
-    const e4 = new Enemy(this.scene, 14, 0, 6, [new THREE.Vector3(14, 0, 6), new THREE.Vector3(14, 0, -4)], 'scout');
-
-    // Catwalk Sniper Marksmen
-    const e5 = new Enemy(this.scene, -10, 3.5, -12, [], 'sniper');
-    const e6 = new Enemy(this.scene, 10, 3.5, -12, [], 'sniper');
-
-    // Citadel Commander Boss (Energy Shield + Heavy Rig)
-    const boss = new Enemy(this.scene, 0, 0.8, -18, [
-      new THREE.Vector3(-4, 0.8, -18),
-      new THREE.Vector3(4, 0.8, -18)
-    ], 'boss');
-
-    this.enemies = [e1, e2, e3, e4, e5, e6, boss];
+    // Randomized 2-3 Distant & Scattered Citadel Enforcers (Final Hostile is ALWAYS General Malikov Boss)
+    const enemyCount4 = Math.random() < 0.5 ? 2 : 3; // strictly 2 or 3 enemies
+    if (enemyCount4 === 2) {
+      const e1 = new Enemy(this.scene, -4.5, 0, 10, [], 'scout');
+      const boss = new Enemy(this.scene, 0, 0, -13, [], 'boss');
+      this.enemies = [e1, boss];
+      this.railWaypoints = [
+        new THREE.Vector3(0, 0, 28),
+        new THREE.Vector3(0, 0, 16),
+        new THREE.Vector3(0, 0, -7),
+        new THREE.Vector3(0, 0, -21.5)
+      ];
+    } else {
+      const e1 = new Enemy(this.scene, -4.5, 0, 14, [], 'scout');
+      const e2 = new Enemy(this.scene, 4.5, 0, 1, [], 'sniper');
+      const boss = new Enemy(this.scene, 0, 0, -13, [], 'boss');
+      this.enemies = [e1, e2, boss];
+      this.railWaypoints = [
+        new THREE.Vector3(0, 0, 28),
+        new THREE.Vector3(0, 0, 20),
+        new THREE.Vector3(0, 0, 7),
+        new THREE.Vector3(0, 0, -7),
+        new THREE.Vector3(0, 0, -21.5)
+      ];
+    }
     this.enemies.forEach(e => aiManager.addEnemy(e));
   }
 
-  // --- DETAILED ARCHITECTURAL & SET-PIECE BUILDERS ---
-  createNeonSign(x, y, z, text, colorHex = 0xff0077) {
-    const group = new THREE.Group();
-    group.position.set(x, y, z);
+  // --- LEVEL 5: CYBERNETIC SERVER MATRIX ---
+  buildLevel5(aiManager) {
+    this.renderer.setupRain(false);
+    this.playerSpawn = { x: 0, y: 0, z: 24, rotY: 0 };
 
-    const backingGeom = new THREE.BoxGeometry(0.2, 1.2, 4.2);
-    const backingMat = new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.8 });
-    const backing = new THREE.Mesh(backingGeom, backingMat);
-    group.add(backing);
-
-    const tubeGeom = new THREE.BoxGeometry(0.25, 0.8, 3.8);
-    const tubeMat = new THREE.MeshBasicMaterial({ color: colorHex });
-    const tube = new THREE.Mesh(tubeGeom, tubeMat);
-    group.add(tube);
-
-    const light = new THREE.PointLight(colorHex, 3.0, 15);
-    light.position.set(0.8, 0, 0);
-    group.add(light);
-
-    this.addObj(group);
-  }
-
-  createSpinningSiren(x, y, z) {
-    const group = new THREE.Group();
-    group.position.set(x, y, z);
-
-    const baseGeom = new THREE.CylinderGeometry(0.2, 0.25, 0.3, 12);
-    const baseMat = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.8 });
-    const base = new THREE.Mesh(baseGeom, baseMat);
-    group.add(base);
-
-    const domeGeom = new THREE.SphereGeometry(0.18, 12, 12, 0, Math.PI * 2, 0, Math.PI * 0.5);
-    const domeMat = new THREE.MeshBasicMaterial({ color: 0xff0022, transparent: true, opacity: 0.8 });
-    const dome = new THREE.Mesh(domeGeom, domeMat);
-    dome.position.y = 0.15;
-    group.add(dome);
-
-    const rotor = new THREE.Group();
-    rotor.position.y = 0.15;
-    const beamGeom = new THREE.BoxGeometry(0.08, 0.08, 0.3);
-    const beam = new THREE.Mesh(beamGeom, new THREE.MeshBasicMaterial({ color: 0xff4455 }));
-    rotor.add(beam);
-
-    const sirenSpot = new THREE.SpotLight(0xff0033, 5.0, 25, Math.PI / 4, 0.3);
-    sirenSpot.position.set(0, 0, 0);
-    const spotTarget = new THREE.Object3D();
-    spotTarget.position.set(0, 0, 15);
-    rotor.add(sirenSpot);
-    rotor.add(spotTarget);
-    sirenSpot.target = spotTarget;
-
-    group.add(rotor);
-    this.addObj(group);
-
-    this.animatedObjects.push({
-      type: 'siren',
-      mesh: rotor
+    // 1. Cyber Grid Floor with Deep Cyan Emissive Glow
+    const floorGeom = new THREE.PlaneGeometry(70, 70);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x040810,
+      roughness: 0.1,
+      metalness: 0.95,
+      emissive: 0x001525,
+      emissiveIntensity: 0.5
     });
-  }
-
-  createCatwalk(x, y, z, w, d) {
-    const group = new THREE.Group();
-    group.position.set(x, y, z);
-
-    const floorGeom = new THREE.BoxGeometry(w, 0.3, d);
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0x222a36, roughness: 0.4, metalness: 0.8 });
     const floor = new THREE.Mesh(floorGeom, floorMat);
-    floor.castShadow = true;
+    floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
-    group.add(floor);
+    this.addObj(floor);
 
-    // Railings
-    const railMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.5 });
-    const railL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.0, d), railMat);
-    railL.position.set(-w / 2 + 0.1, 0.6, 0);
-    group.add(railL);
+    this.createWall(0, 6, -30, 60, 12, 3, 0x080d18);
+    this.createWall(0, 6, 30, 60, 12, 3, 0x080d18);
+    this.createWall(-26, 6, 0, 3, 12, 60, 0x080d18);
+    this.createWall(26, 6, 0, 3, 12, 60, 0x080d18);
 
-    const railR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.0, d), railMat);
-    railR.position.set(w / 2 - 0.1, 0.6, 0);
-    group.add(railR);
-
-    this.addObj(group);
-
-    const box = new THREE.Box3(
-      new THREE.Vector3(x - w / 2, y - 0.15, z - d / 2),
-      new THREE.Vector3(x + w / 2, y + 0.15, z + d / 2)
-    );
-    box.mesh = floor;
-    this.colliders.push(box);
-  }
-
-  createLaserTripwire(x1, y1, z1, x2, y2, z2) {
-    const laserGeo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(x1, y1, z1),
-      new THREE.Vector3(x2, y2, z2)
-    ]);
-    const laserMat = new THREE.LineBasicMaterial({
-      color: 0xff0033,
-      transparent: true,
-      opacity: 0.85,
-      linewidth: 3
-    });
-    const laserLine = new THREE.Line(laserGeo, laserMat);
-    this.addObj(laserLine);
-
-    const emitter1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), new THREE.MeshBasicMaterial({ color: 0x333333 }));
-    emitter1.position.set(x1, y1, z1);
-    this.addObj(emitter1);
-
-    const emitter2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), new THREE.MeshBasicMaterial({ color: 0x333333 }));
-    emitter2.position.set(x2, y2, z2);
-    this.addObj(emitter2);
-  }
-
-  createHologramTable(x, y, z) {
-    const group = new THREE.Group();
-    group.position.set(x, y, z);
-
-    const tableGeom = new THREE.CylinderGeometry(2.2, 2.5, 0.9, 16);
-    const tableMat = new THREE.MeshStandardMaterial({ color: 0x151c24, metalness: 0.8, roughness: 0.3 });
-    const table = new THREE.Mesh(tableGeom, tableMat);
-    table.position.y = 0.45;
-    group.add(table);
-
-    const holoGeom = new THREE.IcosahedronGeometry(0.8, 1);
-    const holoMat = new THREE.MeshBasicMaterial({
-      color: 0x00f0ff,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.65
-    });
-    const holo = new THREE.Mesh(holoGeom, holoMat);
-    holo.position.y = 1.6;
-    group.add(holo);
-
-    const holoLight = new THREE.PointLight(0x00f0ff, 2.5, 8);
-    holoLight.position.y = 1.6;
-    group.add(holoLight);
-
-    this.addObj(group);
-    this.animatedObjects.push({
-      type: 'hologram',
-      mesh: holo
-    });
-
-    const box = new THREE.Box3(
-      new THREE.Vector3(x - 2.2, y, z - 2.2),
-      new THREE.Vector3(x + 2.2, y + 0.9, z + 2.2)
-    );
-    box.mesh = table;
-    this.colliders.push(box);
-  }
-
-  createEuropeanBuilding(x, y, z, w, h, d, wallTex, hasWarmWindows = true) {
-    const bGroup = new THREE.Group();
-    bGroup.position.set(x, y, z);
-
-    // Main Brick/Stone Wall Structure
-    const wallGeom = new THREE.BoxGeometry(w, h, d);
-    const wallMat = new THREE.MeshStandardMaterial({
-      map: wallTex,
-      roughness: 0.7,
-      metalness: 0.15
-    });
-    const mainBuilding = new THREE.Mesh(wallGeom, wallMat);
-    mainBuilding.position.y = h / 2;
-    mainBuilding.castShadow = true;
-    mainBuilding.receiveShadow = true;
-    bGroup.add(mainBuilding);
-
-    // Pitched Slate Roof
-    const roofGeom = new THREE.ConeGeometry(Math.max(w, d) * 0.7, 3.2, 4);
-    roofGeom.rotateY(Math.PI / 4);
-    const roofMat = new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.6 });
-    const roof = new THREE.Mesh(roofGeom, roofMat);
-    roof.position.y = h + 1.6;
-    roof.castShadow = true;
-    bGroup.add(roof);
-
-    // Glowing Warm Amber Windows facing the street
-    if (hasWarmWindows) {
-      const facingSign = x < 0 ? 1 : -1;
-      const winPositions = [
-        [-d * 0.25, h * 0.35],
-        [d * 0.25, h * 0.35],
-        [-d * 0.25, h * 0.7],
-        [d * 0.25, h * 0.7]
-      ];
-
-      winPositions.forEach(([wz, wy]) => {
-        const winGeom = new THREE.PlaneGeometry(1.4, 1.8);
-        const winMat = new THREE.MeshBasicMaterial({
-          color: 0xffbb44,
-          side: THREE.DoubleSide
-        });
-        const win = new THREE.Mesh(winGeom, winMat);
-        win.position.set(facingSign * (w / 2 + 0.05), wy, wz);
-        win.rotation.y = facingSign * Math.PI / 2;
-        bGroup.add(win);
-      });
-
-      // Warm glow emission light illuminating the cobblestones
-      const winLight = new THREE.PointLight(0xffaa33, 2.5, 12);
-      winLight.position.set(facingSign * (w / 2 + 1.0), h * 0.5, 0);
-      bGroup.add(winLight);
+    // Glowing Cyber Data Pillars
+    for (let z of [-16, -6, 4, 14]) {
+      this.createCyberPillar(-10, 0, z, 0x00f0ff);
+      this.createCyberPillar(10, 0, z, 0xff0077);
     }
 
-    this.addObj(bGroup);
+    // High Density Server Racks
+    for (let z of [12, 2, -8]) {
+      this.createServerRack(-6, 0, z);
+      this.createServerRack(6, 0, z);
+    }
 
-    // Explicit exact world-space bounding box for building
+    // Floating Cyber Hologram Table & Neon Sign
+    this.createHologramTable(0, 0, 2);
+    this.createNeonSign(0, 7.5, -28, 'MAINFRAME CORE [AI MATRIX]', 0x00ff88);
+
+    // Pulsating Sirens & Floodlights
+    this.createSpinningSiren(-10, 7, 0);
+    this.createSpinningSiren(10, 7, 0);
+    this.createFloodlight(-8, 9, 8, 0x00f0ff);
+    this.createFloodlight(8, 9, 8, 0xff0077);
+
+    this.bomb = new Bomb(this.scene, 0, 0, -22, 120);
+
+    // 3 Cyber Matrix Enforcers
+    const e1 = new Enemy(this.scene, 4.0, 0, 14, [], 'scout');
+    const e2 = new Enemy(this.scene, -4.0, 0, 4, [], 'scout');
+    const e3 = new Enemy(this.scene, 0, 0, -10, [], 'juggernaut');
+
+    this.enemies = [e1, e2, e3];
+    this.enemies.forEach(e => aiManager.addEnemy(e));
+
+    this.railWaypoints = [
+      new THREE.Vector3(0, 0, 24),
+      new THREE.Vector3(0, 0, 19),
+      new THREE.Vector3(0, 0, 9),
+      new THREE.Vector3(0, 0, -5),
+      new THREE.Vector3(0, 0, -19.8)
+    ];
+  }
+
+  // --- LEVEL 6: ORBITAL LAUNCH PLATFORM (MASTER OMEGA FINALE) ---
+  buildLevel6(aiManager) {
+    this.renderer.setupRain(false);
+    this.playerSpawn = { x: 0, y: 0, z: 26, rotY: 0 };
+
+    // 1. Reinforced Heavy Industrial Launch Pad
+    const floorGeom = new THREE.PlaneGeometry(80, 80);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x0f141e,
+      roughness: 0.25,
+      metalness: 0.75
+    });
+    const floor = new THREE.Mesh(floorGeom, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    this.addObj(floor);
+
+    // Gantry Monolith Pillars
+    this.createCitadelPillar(-14, 0, 14);
+    this.createCitadelPillar(14, 0, 14);
+    this.createCitadelPillar(-14, 0, -14);
+    this.createCitadelPillar(14, 0, -14);
+
+    // Elevated Sniper Perch Catwalk
+    this.createCatwalk(12, 4.2, 2, 6, 14);
+    this.createCatwalk(-12, 4.2, 2, 6, 14);
+
+    // Quad Red Warning Sirens
+    this.createSpinningSiren(-14, 9, 14);
+    this.createSpinningSiren(14, 9, 14);
+    this.createSpinningSiren(-14, 9, -14);
+    this.createSpinningSiren(14, 9, -14);
+    this.createSpinningSiren(0, 9, -24);
+
+    // Flanking Heavy Blast Barricades
+    this.createWall(-6, 1.2, 6, 4, 2.4, 1.5, 0x243242);
+    this.createWall(6, 1.2, 6, 4, 2.4, 1.5, 0x243242);
+
+    // Elevated Boss Command Dias
+    this.createWall(0, 0.4, -22, 14, 0.8, 10, 0x223344);
+
+    // Neon Master Warning Banner
+    this.createNeonSign(0, 8.5, -28, 'ORBITAL LAUNCH TERMINAL', 0xff2233);
+
+    // High Intensity Floodlights
+    this.createFloodlight(0, 10, -10, 0xffeedd);
+    this.createFloodlight(-10, 8, 4, 0xff3344);
+    this.createFloodlight(10, 8, 4, 0xff3344);
+
+    this.bomb = new Bomb(this.scene, 0, 0.8, -22, 120);
+
+    // 3 Finale Enemies (Elite Scout -> Elevated Sniper -> GENERAL MALIKOV BOSS)
+    const e1 = new Enemy(this.scene, -5.0, 0, 16, [], 'scout');
+    const e2 = new Enemy(this.scene, 12, 4.2, 2, [], 'sniper');
+    const boss = new Enemy(this.scene, 0, 0.8, -14, [], 'boss');
+
+    this.enemies = [e1, e2, boss];
+    this.enemies.forEach(e => aiManager.addEnemy(e));
+
+    this.railWaypoints = [
+      new THREE.Vector3(0, 0, 26),
+      new THREE.Vector3(0, 0, 21),
+      new THREE.Vector3(0, 0, 9),
+      new THREE.Vector3(0, 0, -8),
+      new THREE.Vector3(0, 0, -19.8)
+    ];
+  }
+
+  // --- ARCHITECTURAL BUILDERS ---
+  createEuropeanBuilding(x, y, z, w, h, d, wallTex, addRoof = false) {
+    const geom = new THREE.BoxGeometry(w, h, d);
+    const mat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.8, metalness: 0.1 });
+    const bldg = new THREE.Mesh(geom, mat);
+    bldg.position.set(x, y + h / 2, z);
+    bldg.castShadow = true;
+    bldg.receiveShadow = true;
+    this.addObj(bldg);
+
     const box = new THREE.Box3(
-      new THREE.Vector3(x - w / 2, 0, z - d / 2),
-      new THREE.Vector3(x + w / 2, h, z + d / 2)
+      new THREE.Vector3(x - w / 2, y, z - d / 2),
+      new THREE.Vector3(x + w / 2, y + h, z + d / 2)
     );
-    box.mesh = mainBuilding;
+    box.mesh = bldg;
     this.colliders.push(box);
   }
 
   createVintageStreetLamp(x, y, z) {
-    const lampGroup = new THREE.Group();
-    lampGroup.position.set(x, y, z);
+    const postGeom = new THREE.CylinderGeometry(0.12, 0.16, 4.5, 8);
+    const postMat = new THREE.MeshStandardMaterial({ color: 0x1a2228, metalness: 0.9, roughness: 0.3 });
+    const post = new THREE.Mesh(postGeom, postMat);
+    post.position.set(x, 2.25, z);
+    this.addObj(post);
 
-    const metalMat = new THREE.MeshStandardMaterial({ color: 0x111418, roughness: 0.4, metalness: 0.9 });
-    const glassMat = new THREE.MeshBasicMaterial({ color: 0xffdd66 });
+    const lightGlow = new THREE.PointLight(0xffcc77, 3.5, 18);
+    lightGlow.position.set(x, 4.6, z);
+    this.addObj(lightGlow);
+  }
 
-    // Ornate Cast Iron Post
-    const postGeom = new THREE.CylinderGeometry(0.08, 0.12, y, 8);
-    const post = new THREE.Mesh(postGeom, metalMat);
-    post.position.y = -y / 2;
-    post.castShadow = true;
-    lampGroup.add(post);
+  createSpinningSiren(x, y, z) {
+    const baseGeom = new THREE.CylinderGeometry(0.3, 0.4, 0.3, 12);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.8 });
+    const base = new THREE.Mesh(baseGeom, baseMat);
+    base.position.set(x, y, z);
+    this.addObj(base);
 
-    // Lantern Bracket & Cage
-    const cageGeom = new THREE.BoxGeometry(0.5, 0.7, 0.5);
-    const cage = new THREE.Mesh(cageGeom, metalMat);
-    lampGroup.add(cage);
+    const bulbGeom = new THREE.CylinderGeometry(0.2, 0.25, 0.4, 12);
+    const bulbMat = new THREE.MeshBasicMaterial({ color: 0xff1122 });
+    const bulb = new THREE.Mesh(bulbGeom, bulbMat);
+    bulb.position.set(x, y + 0.3, z);
+    this.addObj(bulb);
 
-    // Glowing Bulb Core
-    const bulbGeom = new THREE.SphereGeometry(0.18, 8, 8);
-    const bulb = new THREE.Mesh(bulbGeom, glassMat);
-    lampGroup.add(bulb);
-
-    this.addObj(lampGroup);
-
-    // Warm Atmospheric SpotLight pointing down at street
-    const lampLight = new THREE.SpotLight(0xffaa33, 8.0, 30, Math.PI / 3, 0.5, 1.2);
-    lampLight.position.set(x, y, z);
+    const sirenLight = new THREE.SpotLight(0xff2233, 4.0, 25, Math.PI / 4, 0.3);
+    sirenLight.position.set(x, y + 0.3, z);
     const targetObj = new THREE.Object3D();
-    targetObj.position.set(x, 0, z);
+    targetObj.position.set(x + 5, y, z);
     this.scene.add(targetObj);
-    lampLight.target = targetObj;
-    lampLight.castShadow = true;
-    this.scene.add(lampLight);
-    this.levelObjects.push(lampLight);
-    this.levelObjects.push(targetObj);
+    sirenLight.target = targetObj;
+    this.addObj(sirenLight);
 
-    // Ambient point glow
-    const pointGlow = new THREE.PointLight(0xffaa33, 3.5, 12);
-    pointGlow.position.set(x, y, z);
-    this.scene.add(pointGlow);
-    this.levelObjects.push(pointGlow);
+    this.animatedObjects.push({
+      type: 'siren',
+      mesh: targetObj
+    });
+  }
+
+  createHologramTable(x, y, z) {
+    const tableGeom = new THREE.CylinderGeometry(2.5, 2.8, 1.0, 16);
+    const tableMat = new THREE.MeshStandardMaterial({ color: 0x111622, metalness: 0.8, roughness: 0.3 });
+    const table = new THREE.Mesh(tableGeom, tableMat);
+    table.position.set(x, y + 0.5, z);
+    this.addObj(table);
+
+    const holoGeom = new THREE.IcosahedronGeometry(1.2, 1);
+    const holoMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true, transparent: true, opacity: 0.6 });
+    const holo = new THREE.Mesh(holoGeom, holoMat);
+    holo.position.set(x, y + 2.0, z);
+    this.addObj(holo);
+
+    this.animatedObjects.push({
+      type: 'hologram',
+      mesh: holo
+    });
+  }
+
+  createCatwalk(x, y, z, w, d) {
+    const geom = new THREE.BoxGeometry(w, 0.3, d);
+    const mat = new THREE.MeshStandardMaterial({ color: 0x2a3644, roughness: 0.4, metalness: 0.8 });
+    const catwalk = new THREE.Mesh(geom, mat);
+    catwalk.position.set(x, y, z);
+    catwalk.castShadow = true;
+    catwalk.receiveShadow = true;
+    this.addObj(catwalk);
+  }
+
+  createCyberPillar(x, y, z, glowColor = 0x00f0ff) {
+    const pillarGeom = new THREE.BoxGeometry(1.8, 12, 1.8);
+    const pillarMat = new THREE.MeshStandardMaterial({ color: 0x0c121e, roughness: 0.3, metalness: 0.8 });
+    const pillar = new THREE.Mesh(pillarGeom, pillarMat);
+    pillar.position.set(x, y + 6, z);
+    this.addObj(pillar);
+
+    const stripeGeom = new THREE.BoxGeometry(0.15, 11, 0.15);
+    const stripeMat = new THREE.MeshBasicMaterial({ color: glowColor });
+    const stripe = new THREE.Mesh(stripeGeom, stripeMat);
+    stripe.position.set(x, y + 6, z + 0.95);
+    this.addObj(stripe);
+
+    const light = new THREE.PointLight(glowColor, 2.0, 10);
+    light.position.set(x, y + 6, z + 1.2);
+    this.addObj(light);
+  }
+
+  createNeonSign(x, y, z, text, colorHex = 0xff0077) {
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#0a0a0e';
+    ctx.fillRect(0, 0, 512, 128);
+
+    ctx.fillStyle = `#${colorHex.toString(16).padStart(6, '0')}`;
+    ctx.shadowColor = ctx.fillStyle;
+    ctx.shadowBlur = 18;
+    ctx.font = 'bold 44px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 256, 64);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    const signGeom = new THREE.PlaneGeometry(4.0, 1.0);
+    const signMat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide });
+    const sign = new THREE.Mesh(signGeom, signMat);
+    group.add(sign);
+
+    const glow = new THREE.PointLight(colorHex, 2.0, 8);
+    group.add(glow);
+
+    this.scene.add(group);
+    this.levelObjects.push(group);
   }
 
   createWoodenBarrel(x, y, z) {
@@ -608,16 +634,7 @@ export class LevelManager {
     const mat = new THREE.MeshStandardMaterial({ color: 0x4d3822, roughness: 0.7 });
     const barrel = new THREE.Mesh(geom, mat);
     barrel.position.set(x, y + 0.475, z);
-    barrel.castShadow = true;
-    barrel.receiveShadow = true;
     this.addObj(barrel);
-
-    const box = new THREE.Box3(
-      new THREE.Vector3(x - 0.45, y, z - 0.45),
-      new THREE.Vector3(x + 0.45, y + 0.95, z + 0.45)
-    );
-    box.mesh = barrel;
-    this.colliders.push(box);
   }
 
   addObj(obj) {
@@ -630,8 +647,6 @@ export class LevelManager {
     const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
     const wall = new THREE.Mesh(geom, mat);
     wall.position.set(x, y, z);
-    wall.castShadow = true;
-    wall.receiveShadow = true;
     this.addObj(wall);
 
     const box = new THREE.Box3(
@@ -647,8 +662,6 @@ export class LevelManager {
     const mat = new THREE.MeshStandardMaterial({ color: 0x5a4428, roughness: 0.8 });
     const crate = new THREE.Mesh(geom, mat);
     crate.position.set(x, y + h / 2, z);
-    crate.castShadow = true;
-    crate.receiveShadow = true;
     this.addObj(crate);
 
     const box = new THREE.Box3(
@@ -664,15 +677,7 @@ export class LevelManager {
     const mat = new THREE.MeshStandardMaterial({ color: 0x111822, roughness: 0.4, metalness: 0.8 });
     const rack = new THREE.Mesh(geom, mat);
     rack.position.set(x, y + 1.9, z);
-    rack.castShadow = true;
     this.addObj(rack);
-
-    const box = new THREE.Box3(
-      new THREE.Vector3(x - 0.9, y, z - 0.6),
-      new THREE.Vector3(x + 0.9, y + 3.8, z + 0.6)
-    );
-    box.mesh = rack;
-    this.colliders.push(box);
   }
 
   createChemicalVat(x, y, z, glowColor = 0x00ff88) {
@@ -680,10 +685,8 @@ export class LevelManager {
     const mat = new THREE.MeshStandardMaterial({ color: 0x1e2832, roughness: 0.3, metalness: 0.7 });
     const vat = new THREE.Mesh(geom, mat);
     vat.position.set(x, y + 2.5, z);
-    vat.castShadow = true;
     this.addObj(vat);
 
-    // Glowing liquid cap
     const liquidGeom = new THREE.CircleGeometry(2.4, 16);
     const liquidMat = new THREE.MeshBasicMaterial({ color: glowColor, transparent: true, opacity: 0.75 });
     const liquid = new THREE.Mesh(liquidGeom, liquidMat);
@@ -700,13 +703,6 @@ export class LevelManager {
       mesh: liquid,
       offset: Math.random() * 10
     });
-
-    const box = new THREE.Box3(
-      new THREE.Vector3(x - 2.5, y, z - 2.5),
-      new THREE.Vector3(x + 2.5, y + 5, z + 2.5)
-    );
-    box.mesh = vat;
-    this.colliders.push(box);
   }
 
   createCitadelPillar(x, y, z) {
@@ -714,15 +710,7 @@ export class LevelManager {
     const mat = new THREE.MeshStandardMaterial({ color: 0x1a2330, roughness: 0.3, metalness: 0.6 });
     const pillar = new THREE.Mesh(geom, mat);
     pillar.position.set(x, y + 4.5, z);
-    pillar.castShadow = true;
     this.addObj(pillar);
-
-    const box = new THREE.Box3(
-      new THREE.Vector3(x - 1.4, y, z - 1.4),
-      new THREE.Vector3(x + 1.4, y + 9, z + 1.4)
-    );
-    box.mesh = pillar;
-    this.colliders.push(box);
   }
 
   createFloodlight(x, y, z, color = 0xffeedd) {
@@ -736,12 +724,4 @@ export class LevelManager {
     this.levelObjects.push(light);
     this.levelObjects.push(targetObj);
   }
-
-  createEmergencyLight(x, y, z) {
-    const light = new THREE.PointLight(0xff3344, 3.0, 20);
-    light.position.set(x, y, z);
-    this.scene.add(light);
-    this.levelObjects.push(light);
-  }
 }
-

@@ -255,34 +255,11 @@ export class Enemy {
     this.scene.add(this.root);
   }
 
-  onHit(isHead, damage = 25) {
+  onHit(isHead = true, damage = 100) {
     if (this.isDead) return;
-
-    // Boss Shield Logic
-    if (this.archetype === 'boss' && this.shield > 0) {
-      this.shield -= damage;
-      audio.playBossShieldHit();
-      if (this.shield <= 0) {
-        this.shield = 0;
-        this.shieldMesh.visible = false;
-        audio.playBossShieldBreak();
-      }
-      return;
-    }
-
-    // Calculate Damage
-    let finalDamage = damage;
-    if (isHead) {
-      finalDamage = this.archetype === 'juggernaut' || this.archetype === 'boss' ? damage * 2.2 : this.health;
-    }
-
-    this.health -= finalDamage;
+    this.health = 0;
     this.state = 'combat';
-    this.alertLevel = 1.0;
-
-    if (this.health <= 0) {
-      this.die();
-    }
+    this.die();
   }
 
   die() {

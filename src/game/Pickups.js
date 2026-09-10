@@ -100,8 +100,7 @@ export class PickupManager {
   }
 
   update(delta, player, ui, particleSystem) {
-    const playerPos = player.camera ? player.camera.position : new THREE.Vector3();
-    const playerFeet = new THREE.Vector3(playerPos.x, playerPos.y - player.currentHeight, playerPos.z);
+    const playerFeet = (player && player.yawNode) ? player.yawNode.position : new THREE.Vector3();
 
     for (let i = this.pickups.length - 1; i >= 0; i--) {
       const p = this.pickups[i];
@@ -136,7 +135,7 @@ export class PickupManager {
 
       // Collect pickup
       if (dist <= 0.8) {
-        audio.playPickupSound(p.type);
+        try { audio.playPickupSound(p.type); } catch (e) {}
 
         if (p.type === 'ammo') {
           player.addAmmo(15, 12);
@@ -147,8 +146,8 @@ export class PickupManager {
         }
 
         // Spawn sparkle particle burst if available
-        if (particleSystem) {
-          particleSystem.createSparkBurst(p.group.position, p.type === 'ammo' ? 0x00ffff : 0x00ff88);
+        if (particleSystem && typeof particleSystem.spawnSparks === 'function') {
+          particleSystem.spawnSparks(p.group.position, new THREE.Vector3(0, 1, 0), p.type === 'ammo' ? 0x00ffff : 0x00ff88, 10);
         }
 
         // Cleanup

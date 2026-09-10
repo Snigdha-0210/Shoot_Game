@@ -20,14 +20,15 @@
     <header class="hud-top">
       <div class="hud-top-left">
         <div class="mission-tag">MISSION OBJECTIVE</div>
-        <div id="hud-objective-text" class="objective-title">LOCATE & DEFUSE THE BOMB</div>
-        <div class="level-indicator"><span id="hud-level-badge">LEVEL 1/4</span> : <span id="hud-level-name">INFILTRATION YARD</span></div>
+        <div id="hud-objective-text" class="objective-title">NEUTRALIZE HOSTILES & DEFUSE BOMB</div>
+        <div class="level-indicator"><span id="hud-level-badge">LEVEL 1/6</span> : <span id="hud-level-name">INFILTRATION YARD</span></div>
+        <div class="hostiles-tracker"><span class="hostiles-tag">HOSTILES ELIMINATED: </span><span id="hud-hostiles-count" class="hostiles-num">0 / 6</span></div>
       </div>
 
       <div class="hud-top-center">
         <div class="bomb-timer-container">
-          <div class="timer-label"><span class="pulse-dot"></span> BOMB DETONATION IN</div>
-          <div id="hud-bomb-timer" class="digital-clock">01:30.00</div>
+          <div class="timer-label"><span class="pulse-dot"></span> 2-MINUTE DETONATION TIMER</div>
+          <div id="hud-bomb-timer" class="digital-clock">02:00.00</div>
           <div class="bomb-dist-bar"><span id="hud-bomb-dist">DISTANCE: 45.2m</span></div>
         </div>
       </div>
@@ -39,13 +40,13 @@
           <div class="score-breakdown">
             <span class="hs-tag">HEADSHOT: +15</span> | 
             <span class="bs-tag">BODY: +5</span> | 
-            <span class="pen-tag">HIT: -3</span>
+            <span class="pen-tag">DEFUSE: +100</span>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Boss Health & Shield HUD (Level 4) -->
+    <!-- Boss Health & Shield HUD (Level 6) -->
     <div id="boss-hud" class="boss-hud hidden">
       <div class="boss-title-row">
         <span class="boss-icon">👑</span>
@@ -86,6 +87,27 @@
       </div>
       <div id="headshot-marker" class="headshot-marker hidden">
         <span class="hs-text">CRITICAL HEADSHOT +15</span>
+      </div>
+    </div>
+
+    <!-- Arcade On-Screen Quick-Draw Target Lock Indicator & Combat Task -->
+    <div id="target-lock-prompt" class="target-lock-prompt hidden">
+      <div class="lock-pulse">🎯</div>
+      <div class="lock-text">
+        <div class="lock-header-row">
+          <span class="lock-title">TARGET LOCKED [COMBAT CIPHER]</span>
+          <span id="quickdraw-timer-text" class="quickdraw-timer-text">⏱️ 2.4s</span>
+        </div>
+        <div class="quickdraw-track">
+          <div id="quickdraw-fill" class="quickdraw-fill" style="width: 100%;"></div>
+        </div>
+        <div id="combat-task-container" class="combat-task-container">
+          <div class="task-cipher-label">DISARM CIPHER:</div>
+          <div id="combat-sequence-badges" class="combat-sequence-badges">
+            <!-- Dynamic QTE Badges -->
+          </div>
+        </div>
+        <span class="lock-sub">PRESS BUTTONS [C], [V], [SPACE] OR CLICK BADGES TO NEUTRALIZE</span>
       </div>
     </div>
 
@@ -280,52 +302,44 @@
   <div id="start-screen" class="modal-layer menu-layer">
     <div class="menu-card">
       <div class="menu-glitch-title" data-text="OPERATION: DEFUSE">OPERATION: DEFUSE</div>
-      <div class="menu-subtitle">TACTICAL 3D STEALTH SHOOTER & BOMB DISARMAMENT</div>
+      <div class="menu-subtitle">ON-RAIL ARCADE SHOOTER & 6-WIRE BOMB DISARMAMENT [TECH FEST 4-SECTOR CHALLENGE]</div>
 
       <div class="briefing-box">
         <h3>MISSION BRIEFING:</h3>
-        <p>Hostile mercenary forces have planted high-yield explosive devices across <strong>4 classified enemy sectors</strong>. Infiltrate under darkness, neutralize patrolling guards with precision, track down the bomb coordinates, and cut the correct sequence of wires before detonation.</p>
+        <p>Infiltrate <strong>4 high-security sectors</strong> along the automated rail. Encounter <strong>2 to 3 distant, scattered hostiles</strong> per sector. When locked on a hostile, <strong>enter the 3-button Combat Cipher sequence [C], [V], [SPACE] (or click on-screen badges)</strong> before the countdown expires to eliminate the enemy! Then sprint to the bomb and disarm it using the <strong>6 colored breadboard wires</strong>!</p>
         
         <div class="rules-grid">
           <div class="rule-card">
-            <div class="rc-icon">🎯</div>
-            <div class="rc-title">HEADSHOT COMBO</div>
-            <div class="rc-pts score-head">+15 PTS (x2/x3)</div>
-            <div class="rc-desc">Chained kills trigger score multipliers</div>
-          </div>
-          <div class="rule-card">
-            <div class="rc-icon">🔫</div>
-            <div class="rc-title">DUAL ARSENAL</div>
-            <div class="rc-pts score-body">[1] M4A1 / [2] USP</div>
-            <div class="rc-desc">Quick-swap via [Q] in battle</div>
-          </div>
-          <div class="rule-card">
-            <div class="rc-icon">💨</div>
-            <div class="rc-title">SMOKE GRENADE</div>
-            <div class="rc-pts score-pen">[G] KEY</div>
-            <div class="rc-desc">Blinds enemies and creates cover</div>
-          </div>
-          <div class="rule-card">
             <div class="rc-icon">⚡</div>
-            <div class="rc-title">BULLET-TIME</div>
-            <div class="rc-pts">[SPACE] FOCUS</div>
-            <div class="rc-desc">Slow-motion precision aiming</div>
+            <div class="rc-title">3-BUTTON COMBAT</div>
+            <div class="rc-pts score-head">[C] [V] [SPACE]</div>
+            <div class="rc-desc">Hardware/arcade 3-button elimination system</div>
+          </div>
+          <div class="rule-card">
+            <div class="rc-icon">⏱️</div>
+            <div class="rc-title">REACTION TIMER</div>
+            <div class="rc-pts score-body">3.0s → 1.5s</div>
+            <div class="rc-desc">Tightening reaction windows per sector</div>
+          </div>
+          <div class="rule-card">
+            <div class="rc-icon">🎯</div>
+            <div class="rc-title">2–3 SCATTERED FOES</div>
+            <div class="rc-pts score-head">DISTANT ENCOUNTERS</div>
+            <div class="rc-desc">Long hallway sprint traversal runs</div>
+          </div>
+          <div class="rule-card">
+            <div class="rc-icon">🔌</div>
+            <div class="rc-title">6-WIRE DEFUSAL</div>
+            <div class="rc-pts score-head">PINS [1–6]</div>
+            <div class="rc-desc">Breadboard wire cutting protocol</div>
           </div>
         </div>
 
         <div class="controls-overview">
-          <span class="ctrl-chip"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</span>
-          <span class="ctrl-chip"><kbd>MOUSE</kbd> Aim</span>
-          <span class="ctrl-chip"><kbd>LMB</kbd> Shoot</span>
-          <span class="ctrl-chip"><kbd>RMB</kbd> ADS Aim</span>
-          <span class="ctrl-chip"><kbd>Q</kbd> / <kbd>1</kbd> / <kbd>2</kbd> Swap Gun</span>
-          <span class="ctrl-chip"><kbd>G</kbd> Smoke Grenade</span>
-          <span class="ctrl-chip"><kbd>SPACE</kbd> Bullet-Time Focus</span>
-          <span class="ctrl-chip"><kbd>C</kbd> / <kbd>CTRL</kbd> Crouch (Stealth)</span>
-          <span class="ctrl-chip"><kbd>SHIFT</kbd> Sprint</span>
-          <span class="ctrl-chip"><kbd>R</kbd> Reload</span>
-          <span class="ctrl-chip"><kbd>F</kbd> Flashlight</span>
-          <span class="ctrl-chip"><kbd>E</kbd> Defuse Bomb</span>
+          <span class="ctrl-chip"><kbd>C</kbd> CIRCUIT C CIPHER</span>
+          <span class="ctrl-chip"><kbd>V</kbd> CIRCUIT V CIPHER</span>
+          <span class="ctrl-chip"><kbd>SPACE</kbd> / <kbd>TRIGGER</kbd> / <kbd>LMB</kbd> KINETIC TRIGGER</span>
+          <span class="ctrl-chip"><kbd>1 - 6</kbd> BREADBOARD DEFUSAL WIRES</span>
         </div>
       </div>
 
@@ -344,7 +358,7 @@
       <div class="stats-summary-card">
         <div class="stat-row">
           <span>Enemies Neutralized:</span>
-          <strong id="stat-enemies-killed">0</strong>
+          <strong id="stat-enemies-killed">6 / 6</strong>
         </div>
         <div class="stat-row">
           <span>Headshot Precision Kills (+15):</span>
@@ -353,10 +367,6 @@
         <div class="stat-row">
           <span>Body Hits Landed (+5):</span>
           <strong id="stat-bodyshots" class="score-body">0</strong>
-        </div>
-        <div class="stat-row">
-          <span>Times Hit by Enemy (-3):</span>
-          <strong id="stat-hits-taken" class="score-pen">0</strong>
         </div>
         <div class="stat-row">
           <span>Bomb Defusal Bonus:</span>
@@ -397,12 +407,12 @@
     </div>
   </div>
 
-  <!-- Grand Victory Screen (All 4 Levels Cleared) -->
+  <!-- Grand Victory Screen (All 6 Levels Cleared) -->
   <div id="victory-screen" class="modal-layer menu-layer hidden">
     <div class="menu-card victory-all-theme">
       <div class="medal-icon">🎖️</div>
       <div class="menu-glitch-title gold" data-text="OPERATION COMPLETE">OPERATION COMPLETE</div>
-      <div class="menu-subtitle">ALL 4 ENEMY SECTORS DEFUSED & SECURED</div>
+      <div class="menu-subtitle">ALL 6 ENEMY SECTORS DEFUSED & SECURED</div>
 
       <div class="stats-summary-card">
         <div class="stat-row">
@@ -410,8 +420,8 @@
           <strong id="stat-final-rank" class="score-head">MASTER SHADOW COMMANDO</strong>
         </div>
         <div class="stat-row">
-          <span>Total Headshots:</span>
-          <strong id="stat-final-headshots" class="score-head">0</strong>
+          <span>Total Precision Neutralizations:</span>
+          <strong id="stat-final-headshots" class="score-head">36 / 36</strong>
         </div>
         <div class="stat-row highlight">
           <span>FINAL GRAND SCORE:</span>
