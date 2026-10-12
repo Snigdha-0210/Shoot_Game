@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" width="100%" height="100%">
+  <defs>
+    <linearGradient id="schemBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080b12" />
+      <stop offset="50%" stop-color="#0e172a" />
+      <stop offset="100%" stop-color="#060911" />
+    </linearGradient>
+
+    <filter id="pcbShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <style>
+    .schem-title { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 800; font-size: 24px; fill: #ffffff; letter-spacing: 2px; }
+    .schem-sub { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 500; font-size: 13px; fill: #60a5fa; letter-spacing: 1.5px; }
+    .chip-title { font-family: 'Segoe UI', monospace; font-weight: 800; font-size: 16px; fill: #38bdf8; }
+    .pin-label { font-family: 'Segoe UI', monospace; font-weight: 700; font-size: 12px; fill: #cbd5e1; }
+    .net-label { font-family: 'Segoe UI', monospace; font-weight: 700; font-size: 11px; fill: #facc15; }
+    .block-title { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 700; font-size: 15px; fill: #ffffff; }
+    .block-desc { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 400; font-size: 12px; fill: #94a3b8; }
+  </style>
+
+  <!-- Background -->
+  <rect width="1200" height="750" fill="url(#schemBg)" />
+
+  <!-- Grid overlay -->
+  <g opacity="0.05">
+    <path d="M0,50 H1200 M0,100 H1200 M0,150 H1200 M0,200 H1200 M0,250 H1200 M0,300 H1200 M0,350 H1200 M0,400 H1200 M0,450 H1200 M0,500 H1200 M0,550 H1200 M0,600 H1200 M0,650 H1200 M0,700 H1200" stroke="#00f0ff" stroke-width="1" />
+    <path d="M50,0 V750 M100,0 V750 M150,0 V750 M200,0 V750 M250,0 V750 M300,0 V750 M350,0 V750 M400,0 V750 M450,0 V750 M500,0 V750 M550,0 V750 M600,0 V750 M660,0 V750 M700,0 V750 M750,0 V750 M800,0 V750 M850,0 V750 M900,0 V750 M950,0 V750 M1000,0 V750 M1050,0 V750 M1100,0 V750 M1150,0 V750" stroke="#00f0ff" stroke-width="1" />
+  </g>
+
+  <!-- Header -->
+  <rect x="40" y="25" width="1120" height="65" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" filter="url(#pcbShadow)" />
+  <text x="70" y="52" class="schem-title">HARDWARE ARCADE &amp; BREADBOARD CONTROLLER PINOUT</text>
+  <text x="70" y="73" class="schem-sub">3-BUTTON COMBAT CIPHER • USB HID INTERFACE • BREADBOARD WIRING SCHEMATIC</text>
+
+  <!-- Left: Physical Push Buttons & Breadboard -->
+  <g transform="translate(60, 120)" filter="url(#pcbShadow)">
+    <rect width="320" height="570" rx="12" fill="#1e293b" stroke="#334155" stroke-width="2" />
+    <rect width="320" height="45" rx="12" fill="#0f172a" />
+    <text x="20" y="28" class="block-title">PHYSICAL INPUT SWITCHES</text>
+
+    <!-- Button 1: [C] -->
+    <g transform="translate(20, 65)">
+      <rect width="280" height="140" rx="8" fill="#0f172a" stroke="#ca8a04" stroke-width="2" />
+      <circle cx="55" cy="55" r="28" fill="#eab308" stroke="#ca8a04" stroke-width="3" />
+      <text x="55" y="62" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="20" fill="#000000">C</text>
+      <text x="105" y="45" class="block-title" fill="#fde047">BUTTON 1: [C]</text>
+      <text x="105" y="65" class="block-desc">Tactical Stance / Circuit C</text>
+      <text x="105" y="85" class="net-label">KEY: 'KeyC' | Digit1</text>
+      <text x="25" y="120" class="pin-label">Terminal A: GPIO D2 • Terminal B: GND</text>
+    </g>
+
+    <!-- Button 2: [V] -->
+    <g transform="translate(20, 230)">
+      <rect width="280" height="140" rx="8" fill="#0f172a" stroke="#0284c7" stroke-width="2" />
+      <circle cx="55" cy="55" r="28" fill="#06b6d4" stroke="#0284c7" stroke-width="3" />
+      <text x="55" y="62" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="20" fill="#000000">V</text>
+      <text x="105" y="45" class="block-title" fill="#38bdf8">BUTTON 2: [V]</text>
+      <text x="105" y="65" class="block-desc">Tactical Melee / Circuit V</text>
+      <text x="105" y="85" class="net-label">KEY: 'KeyV' | Digit2</text>
+      <text x="25" y="120" class="pin-label">Terminal A: GPIO D3 • Terminal B: GND</text>
+    </g>
+
+    <!-- Button 3: [SPACE] -->
+    <g transform="translate(20, 395)">
+      <rect width="280" height="140" rx="8" fill="#0f172a" stroke="#16a34a" stroke-width="2" />
+      <rect x="25" y="32" width="65" height="45" rx="6" fill="#22c55e" stroke="#16a34a" stroke-width="2" />
+      <text x="57" y="60" text-anchor="middle" font-family="'Segoe UI', monospace" font-weight="900" font-size="12" fill="#000000">SPACE</text>
+      <text x="105" y="45" class="block-title" fill="#4ade80">BUTTON 3: [TRIGGER]</text>
+      <text x="105" y="65" class="block-desc">Kinetic Trigger / Fire</text>
+      <text x="105" y="85" class="net-label">KEY: 'Space' | 'Enter' | 'KeyF'</text>
+      <text x="25" y="120" class="pin-label">Terminal A: GPIO D4 • Terminal B: GND</text>
+    </g>
+  </g>
+
+  <!-- Wire traces from Switches to MCU -->
+  <!-- Wire D2 (Yellow) -->
+  <path d="M380,240 H490" stroke="#facc15" stroke-width="3" stroke-linecap="round" />
+  <circle cx="490" cy="240" r="4" fill="#facc15" />
+
+  <!-- Wire D3 (Cyan) -->
+  <path d="M380,405 H490" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+  <circle cx="490" cy="405" r="4" fill="#38bdf8" />
+
+  <!-- Wire D4 (Green) -->
+  <path d="M380,570 H490" stroke="#4ade80" stroke-width="3" stroke-linecap="round" />
+  <circle cx="490" cy="570" r="4" fill="#4ade80" />
+
+  <!-- Center: Microcontroller (MCU / HID Controller) -->
+  <g transform="translate(490, 150)" filter="url(#pcbShadow)">
+    <rect width="300" height="510" rx="14" fill="#091b15" stroke="#10b981" stroke-width="2.5" />
+    <rect width="300" height="45" rx="14" fill="#062e22" />
+    <text x="150" y="28" class="chip-title" text-anchor="middle">USB HID MICROCONTROLLER</text>
+    <text x="150" y="42" class="pin-label" font-size="10" fill="#6ee7b7" text-anchor="middle">(Arduino Pro Micro / RP2040 / Pico)</text>
+
+    <!-- MCU IC representation -->
+    <rect x="70" y="80" width="160" height="150" rx="8" fill="#18272f" stroke="#334155" stroke-width="2" />
+    <circle cx="90" cy="100" r="5" fill="#475569" />
+    <text x="150" y="145" class="pin-label" text-anchor="middle" fill="#94a3b8">ATmega32U4 /</text>
+    <text x="150" y="165" class="pin-label" text-anchor="middle" fill="#94a3b8">RP2040 CORE</text>
+    <text x="150" y="195" font-family="'Segoe UI', monospace" font-size="10" fill="#00ff88" text-anchor="middle">HID Keyboard Lib</text>
+
+    <!-- Pins on left side -->
+    <text x="15" y="95" class="pin-label" fill="#facc15">GPIO D2 (IN_PULLUP)</text>
+    <text x="15" y="260" class="pin-label" fill="#38bdf8">GPIO D3 (IN_PULLUP)</text>
+    <text x="15" y="425" class="pin-label" fill="#4ade80">GPIO D4 (IN_PULLUP)</text>
+    <text x="15" y="475" class="pin-label" fill="#94a3b8">GND (COMMON BUS)</text>
+
+    <!-- USB Port on top -->
+    <rect x="110" y="-12" width="80" height="20" rx="4" fill="#475569" stroke="#64748b" stroke-width="1.5" />
+    <text x="150" y="3" font-family="'Segoe UI', monospace" font-size="9" fill="#ffffff" text-anchor="middle">USB-C</text>
+  </g>
+
+  <!-- Wire trace USB to PC/Browser -->
+  <path d="M640,138 V80 H880 V150" stroke="#00f0ff" stroke-width="3" stroke-dasharray="6,4" fill="none" />
+
+  <!-- Right: Host PC / Web Application (Three.js Engine) -->
+  <g transform="translate(840, 150)" filter="url(#pcbShadow)">
+    <rect width="300" height="510" rx="14" fill="#0f172a" stroke="#00f0ff" stroke-width="2" />
+    <rect width="300" height="45" rx="14" fill="#1e293b" />
+    <text x="150" y="28" class="block-title" text-anchor="middle">OPERATION: DEFUSE WEB APP</text>
+
+    <!-- Browser Stack Blocks -->
+    <g transform="translate(20, 65)">
+      <rect width="260" height="75" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1" />
+      <text x="15" y="25" class="block-title" fill="#38bdf8">1. InputManager (Input.js)</text>
+      <text x="15" y="45" class="block-desc">• window.addEventListener('keydown')</text>
+      <text x="15" y="62" class="block-desc">• PointerLock mouse aim + buttons</text>
+    </g>
+
+    <g transform="translate(20, 155)">
+      <rect width="260" height="75" rx="6" fill="#1e293b" stroke="#ca8a04" stroke-width="1" />
+      <text x="15" y="25" class="block-title" fill="#fde047">2. RailController (QTE)</text>
+      <text x="15" y="45" class="block-desc">• Standoff cipher validation</text>
+      <text x="15" y="62" class="block-desc">• Checks sequence against active enemy</text>
+    </g>
+
+    <g transform="translate(20, 245)">
+      <rect width="260" height="75" rx="6" fill="#1e293b" stroke="#16a34a" stroke-width="1" />
+      <text x="15" y="25" class="block-title" fill="#4ade80">3. HitboxManager</text>
+      <text x="15" y="45" class="block-desc">• Raycast bullet calculation</text>
+      <text x="15" y="62" class="block-desc">• Headshot +15 / Body +5 / Combos</text>
+    </g>
+
+    <g transform="translate(20, 335)">
+      <rect width="260" height="75" rx="6" fill="#1e293b" stroke="#a855f7" stroke-width="1" />
+      <text x="15" y="25" class="block-title" fill="#c084fc">4. DefusalStation (6-Wire)</text>
+      <text x="15" y="45" class="block-desc">• Hotkeys [1-6] or Color Keys [R,G,Y,K,B,W]</text>
+      <text x="15" y="62" class="block-desc">• Disarms ordnance breadboard</text>
+    </g>
+
+    <g transform="translate(20, 425)">
+      <rect width="260" height="65" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1" />
+      <text x="15" y="25" class="block-title" fill="#6ee7b7">✓ ZERO LATENCY</text>
+      <text x="15" y="45" class="block-desc" fill="#a7f3d0">Standard keyboard event pipeline</text>
+    </g>
+  </g>
+
+  <!-- Footer Info -->
+  <g transform="translate(40, 705)">
+    <rect width="1120" height="35" rx="6" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+    <text x="25" y="22" font-family="'Segoe UI', sans-serif" font-size="12" fill="#94a3b8">COMPATIBILITY: Standard USB keyboard, 3-Button arcade fightsticks, breadboard pushbuttons, or direct on-screen mouse clicks.</text>
+  </g>
+</svg>

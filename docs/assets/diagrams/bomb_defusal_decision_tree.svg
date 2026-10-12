@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 840" width="100%" height="100%">
+  <defs>
+    <linearGradient id="treeBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080b12" />
+      <stop offset="50%" stop-color="#0d1424" />
+      <stop offset="100%" stop-color="#060910" />
+    </linearGradient>
+
+    <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <marker id="arrCyan" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#00f0ff" />
+    </marker>
+    <marker id="arrGreen" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#00ff88" />
+    </marker>
+    <marker id="arrRed" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#ff3366" />
+    </marker>
+  </defs>
+
+  <style>
+    .tree-header { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 800; font-size: 24px; fill: #ffffff; letter-spacing: 2px; }
+    .tree-sub { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 500; font-size: 13px; fill: #00ff88; letter-spacing: 1.5px; }
+    .col-title { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 700; font-size: 15px; fill: #ffffff; }
+    .item-title { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 700; font-size: 13.5px; fill: #38bdf8; }
+    .item-desc { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 400; font-size: 11.5px; fill: #94a3b8; }
+    .cut-wire { font-family: 'Segoe UI', monospace; font-weight: 800; font-size: 12px; fill: #ffffff; }
+    .badge-code { font-family: 'Segoe UI', monospace; font-weight: 700; font-size: 11px; fill: #ffd700; }
+  </style>
+
+  <!-- Background -->
+  <rect width="1200" height="840" fill="url(#treeBg)" />
+
+  <!-- Grid overlay -->
+  <g opacity="0.05">
+    <path d="M0,70 H1200 M0,140 H1200 M0,210 H1200 M0,280 H1200 M0,350 H1200 M0,420 H1200 M0,490 H1200 M0,560 H1200 M0,630 H1200 M0,700 H1200 M0,770 H1200" stroke="#00f0ff" stroke-width="1" />
+    <path d="M70,0 V840 M140,0 V840 M210,0 V840 M280,0 V840 M350,0 V840 M420,0 V840 M490,0 V840 M560,0 V840 M630,0 V840 M700,0 V840 M770,0 V840 M840,0 V840 M910,0 V840 M980,0 V840 M1050,0 V840 M1120,0 V840" stroke="#00f0ff" stroke-width="1" />
+  </g>
+
+  <!-- Title Header -->
+  <rect x="40" y="25" width="1120" height="65" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" filter="url(#shadowFilter)" />
+  <text x="70" y="52" class="tree-header">EOD BOMB DISARMAMENT DECISION TREE &amp; LOGIC RULES</text>
+  <text x="70" y="73" class="tree-sub">STANDARDIZED 6-WIRE BREADBOARD CIRCUITS • FIELD DISARMAMENT MANUAL RULES • 4 SECTOR PROTOCOLS</text>
+
+  <!-- Top Analysis Phase Bar -->
+  <g transform="translate(40, 110)" filter="url(#shadowFilter)">
+    <rect width="1120" height="75" rx="8" fill="#131e33" stroke="#00f0ff" stroke-width="2" />
+    <text x="30" y="32" class="col-title" fill="#00f0ff">PHASE 1: HARDWARE DIAGNOSTICS &amp; SERIAL NUMBER INSPECTION</text>
+    <text x="30" y="55" class="item-desc">Step 1: Check Serial Number Plate on bomb chassis</text>
+    <text x="420" y="55" class="item-desc">Step 2: Inspect 4-LED Status Bank (RED, GREEN, BLUE, YELLOW)</text>
+    <text x="850" y="55" class="item-desc">Step 3: Count Active Terminal Wires</text>
+    <circle cx="1080" cy="38" r="8" fill="#00ff88" />
+  </g>
+
+  <!-- Connectors from Phase 1 to 4 Sectors -->
+  <path d="M180,185 V220" stroke="#00f0ff" stroke-width="2" marker-end="url(#arrCyan)" />
+  <path d="M460,185 V220" stroke="#00f0ff" stroke-width="2" marker-end="url(#arrCyan)" />
+  <path d="M740,185 V220" stroke="#00f0ff" stroke-width="2" marker-end="url(#arrCyan)" />
+  <path d="M1020,185 V220" stroke="#00f0ff" stroke-width="2" marker-end="url(#arrCyan)" />
+
+  <!-- COLUMN 1: LEVEL 1 (Mk-I C4) -->
+  <g transform="translate(40, 220)" filter="url(#shadowFilter)">
+    <rect width="265" height="520" rx="10" fill="#111827" stroke="#374151" stroke-width="1.5" />
+    <rect width="265" height="42" rx="10" fill="#1f2937" />
+    <text x="15" y="27" class="col-title">SECTOR 1: MK-I C4</text>
+
+    <!-- Specs -->
+    <rect x="15" y="55" width="235" height="60" rx="6" fill="#1e293b" />
+    <text x="25" y="75" class="item-desc">• Serial: <tspan class="badge-code">8K4-T7</tspan></text>
+    <text x="25" y="93" class="item-desc">• Circuit: 3 Wires (Red, Blue, Yellow)</text>
+    <text x="25" y="107" class="item-desc">• Detonator: Single Phase</text>
+
+    <!-- Rule Logic -->
+    <text x="15" y="140" class="item-title">Disarmament Logic:</text>
+    <rect x="15" y="150" width="235" height="110" rx="6" fill="#0b1329" stroke="#1d4ed8" stroke-width="1" />
+    <text x="25" y="172" class="item-desc">IF last digit of serial is odd</text>
+    <text x="25" y="190" class="item-desc">AND Wire #2 is BLUE:</text>
+    <text x="25" y="210" class="item-desc">Cut secondary relay bypass.</text>
+    <text x="25" y="240" class="cut-wire" fill="#60a5fa">CUT WIRE #2 [BLUE]</text>
+
+    <!-- Flow arrow -->
+    <path d="M132,270 V300" stroke="#00ff88" stroke-width="2" marker-end="url(#arrGreen)" />
+
+    <!-- Action Result -->
+    <g transform="translate(15, 305)">
+      <rect width="235" height="100" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1.5" />
+      <text x="15" y="25" class="item-title" fill="#34d399">STATUS: DISARMED</text>
+      <text x="15" y="47" class="item-desc" fill="#a7f3d0">• Power bus isolated</text>
+      <text x="15" y="65" class="item-desc" fill="#a7f3d0">• Detonator capacitor discharged</text>
+      <text x="15" y="85" class="badge-code" fill="#6ee7b7">+100 PTS + TIME BONUS</text>
+    </g>
+
+    <!-- Fault condition -->
+    <g transform="translate(15, 425)">
+      <rect width="235" height="75" rx="6" fill="#450a0a" stroke="#dc2626" stroke-width="1" />
+      <text x="15" y="23" class="item-title" fill="#f87171">FAULT CONDITION</text>
+      <text x="15" y="43" class="item-desc" fill="#fca5a5">Cutting Red or Yellow triggers</text>
+      <text x="15" y="60" class="cut-wire" fill="#ef4444">-20s PENALTY ON TIMER</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 2: LEVEL 2 (Digital Timer) -->
+  <g transform="translate(325, 220)" filter="url(#shadowFilter)">
+    <rect width="265" height="520" rx="10" fill="#111827" stroke="#374151" stroke-width="1.5" />
+    <rect width="265" height="42" rx="10" fill="#1f2937" />
+    <text x="15" y="27" class="col-title">SECTOR 2: DIGITAL PCB</text>
+
+    <!-- Specs -->
+    <rect x="15" y="55" width="235" height="60" rx="6" fill="#1e293b" />
+    <text x="25" y="75" class="item-desc">• Serial: <tspan class="badge-code">3V9-B2</tspan></text>
+    <text x="25" y="93" class="item-desc">• Circuit: 4 Wires (R, B, W, K)</text>
+    <text x="25" y="107" class="item-desc">• LEDs: Green Active</text>
+
+    <!-- Rule Logic -->
+    <text x="15" y="140" class="item-title">Disarmament Logic:</text>
+    <rect x="15" y="150" width="235" height="110" rx="6" fill="#0b1329" stroke="#1d4ed8" stroke-width="1" />
+    <text x="25" y="172" class="item-desc">IF Green LED is active</text>
+    <text x="25" y="190" class="item-desc">AND more than 1 Red wire absent:</text>
+    <text x="25" y="210" class="item-desc">Cut the first Blue wire in harness.</text>
+    <text x="25" y="240" class="cut-wire" fill="#60a5fa">CUT WIRE #2 [BLUE]</text>
+
+    <!-- Flow arrow -->
+    <path d="M132,270 V300" stroke="#00ff88" stroke-width="2" marker-end="url(#arrGreen)" />
+
+    <!-- Action Result -->
+    <g transform="translate(15, 305)">
+      <rect width="235" height="100" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1.5" />
+      <text x="15" y="25" class="item-title" fill="#34d399">STATUS: DISARMED</text>
+      <text x="15" y="47" class="item-desc" fill="#a7f3d0">• Clock oscillator bridged</text>
+      <text x="15" y="65" class="item-desc" fill="#a7f3d0">• Timer halted at active tick</text>
+      <text x="15" y="85" class="badge-code" fill="#6ee7b7">+100 PTS + TIME BONUS</text>
+    </g>
+
+    <!-- Fault condition -->
+    <g transform="translate(15, 425)">
+      <rect width="235" height="75" rx="6" fill="#450a0a" stroke="#dc2626" stroke-width="1" />
+      <text x="15" y="23" class="item-title" fill="#f87171">FAULT CONDITION</text>
+      <text x="15" y="43" class="item-desc" fill="#fca5a5">Cutting Black ground causes shock</text>
+      <text x="15" y="60" class="cut-wire" fill="#ef4444">-20s PENALTY ON TIMER</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 3: LEVEL 3 (Bio-Chemical 2-Stage) -->
+  <g transform="translate(610, 220)" filter="url(#shadowFilter)">
+    <rect width="265" height="520" rx="10" fill="#111827" stroke="#374151" stroke-width="1.5" />
+    <rect width="265" height="42" rx="10" fill="#1f2937" />
+    <text x="15" y="27" class="col-title">SECTOR 3: BIO-DETONATOR</text>
+
+    <!-- Specs -->
+    <rect x="15" y="55" width="235" height="60" rx="6" fill="#1e293b" />
+    <text x="25" y="75" class="item-desc">• Serial: <tspan class="badge-code">5S8-X4</tspan></text>
+    <text x="25" y="93" class="item-desc">• Circuit: 5 Wires (S, R, Y, G, B)</text>
+    <text x="25" y="107" class="item-desc">• Detonator: 2-Stage Sequence</text>
+
+    <!-- Rule Logic -->
+    <text x="15" y="140" class="item-title">2-Stage Sequential Logic:</text>
+    <rect x="15" y="150" width="235" height="110" rx="6" fill="#0b1329" stroke="#1d4ed8" stroke-width="1" />
+    <text x="25" y="170" class="item-desc">STAGE 1: Vent Solenoid Bypass</text>
+    <text x="25" y="188" class="cut-wire" fill="#f59e0b">1. CUT WIRE #1 [STRIPED]</text>
+    <text x="25" y="212" class="item-desc">STAGE 2: Neutralize Coolant</text>
+    <text x="25" y="235" class="cut-wire" fill="#10b981">2. CUT WIRE #4 [GREEN]</text>
+
+    <!-- Flow arrow -->
+    <path d="M132,270 V300" stroke="#00ff88" stroke-width="2" marker-end="url(#arrGreen)" />
+
+    <!-- Action Result -->
+    <g transform="translate(15, 305)">
+      <rect width="235" height="100" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1.5" />
+      <text x="15" y="25" class="item-title" fill="#34d399">STATUS: DISARMED</text>
+      <text x="15" y="47" class="item-desc" fill="#a7f3d0">• Bio-canisters locked shut</text>
+      <text x="15" y="65" class="item-desc" fill="#a7f3d0">• Toxic coolant safely purged</text>
+      <text x="15" y="85" class="badge-code" fill="#6ee7b7">+100 PTS + TIME BONUS</text>
+    </g>
+
+    <!-- Fault condition -->
+    <g transform="translate(15, 425)">
+      <rect width="235" height="75" rx="6" fill="#450a0a" stroke="#dc2626" stroke-width="1" />
+      <text x="15" y="23" class="item-title" fill="#f87171">OUT OF ORDER FAULT</text>
+      <text x="15" y="43" class="item-desc" fill="#fca5a5">Cutting Stage 2 before Stage 1</text>
+      <text x="15" y="60" class="cut-wire" fill="#ef4444">-20s PENALTY ON TIMER</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 4: LEVEL 4 (Master Omega Core) -->
+  <g transform="translate(895, 220)" filter="url(#shadowFilter)">
+    <rect width="265" height="520" rx="10" fill="#111827" stroke="#ffd700" stroke-width="2" />
+    <rect width="265" height="42" rx="10" fill="#2e240a" />
+    <text x="15" y="27" class="col-title" fill="#fde047">SECTOR 4: OMEGA CORE</text>
+
+    <!-- Specs -->
+    <rect x="15" y="55" width="235" height="60" rx="6" fill="#1e293b" />
+    <text x="25" y="75" class="item-desc">• Serial: <tspan class="badge-code">9X0-OMEGA</tspan></text>
+    <text x="25" y="93" class="item-desc">• Circuit: 6 Wires (R, S, B, Y, W, G)</text>
+    <text x="25" y="107" class="item-desc">• Detonator: 3-Stage Omega Protocol</text>
+
+    <!-- Rule Logic -->
+    <text x="15" y="140" class="item-title" fill="#fde047">3-Stage Omega Sequence:</text>
+    <rect x="15" y="150" width="235" height="110" rx="6" fill="#0b1329" stroke="#ca8a04" stroke-width="1" />
+    <text x="20" y="170" class="item-desc">STAGE 1: Primary Power</text>
+    <text x="20" y="185" class="cut-wire" fill="#f87171">1. CUT WIRE #1 [RED]</text>
+    <text x="20" y="202" class="item-desc">STAGE 2: Core Oscillation</text>
+    <text x="20" y="217" class="cut-wire" fill="#ffffff">2. CUT WIRE #5 [WHITE]</text>
+    <text x="20" y="233" class="cut-wire" fill="#4ade80">3. CUT WIRE #6 [GREEN]</text>
+
+    <!-- Flow arrow -->
+    <path d="M132,270 V300" stroke="#00ff88" stroke-width="2" marker-end="url(#arrGreen)" />
+
+    <!-- Action Result -->
+    <g transform="translate(15, 305)">
+      <rect width="235" height="100" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1.5" />
+      <text x="15" y="25" class="item-title" fill="#34d399">GRAND VICTORY!</text>
+      <text x="15" y="47" class="item-desc" fill="#a7f3d0">• Citadel Core Permanent Shutdown</text>
+      <text x="15" y="65" class="item-desc" fill="#a7f3d0">• All 4 Sectors 100% Cleared</text>
+      <text x="15" y="85" class="badge-code" fill="#fde047">S-RANK COMMENDATION</text>
+    </g>
+
+    <!-- Fault condition -->
+    <g transform="translate(15, 425)">
+      <rect width="235" height="75" rx="6" fill="#450a0a" stroke="#dc2626" stroke-width="1" />
+      <text x="15" y="23" class="item-title" fill="#f87171">OVERLOAD FAULT</text>
+      <text x="15" y="43" class="item-desc" fill="#fca5a5">Cutting Striped wire causes surge</text>
+      <text x="15" y="60" class="cut-wire" fill="#ef4444">-20s PENALTY ON TIMER</text>
+    </g>
+  </g>
+
+  <!-- Bottom Disarmament Shortcuts Footer -->
+  <g transform="translate(40, 765)">
+    <rect width="1120" height="50" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+    <text x="25" y="30" font-family="'Segoe UI', monospace" font-size="12" fill="#94a3b8">BREADBOARD WIRE HOTKEYS: <tspan fill="#f87171">[1/R] RED</tspan> • <tspan fill="#4ade80">[2/G] GREEN</tspan> • <tspan fill="#fde047">[3/Y] YELLOW</tspan> • <tspan fill="#94a3b8">[4/K] BLACK</tspan> • <tspan fill="#60a5fa">[5/B] BLUE</tspan> • <tspan fill="#ffffff">[6/W] WHITE</tspan> | EXIT: <tspan fill="#38bdf8">[ESC]</tspan></text>
+  </g>
+</svg>

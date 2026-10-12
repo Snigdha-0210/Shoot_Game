@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" width="100%" height="100%">
+  <defs>
+    <linearGradient id="flowBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080b12" />
+      <stop offset="50%" stop-color="#0c1220" />
+      <stop offset="100%" stop-color="#060910" />
+    </linearGradient>
+
+    <filter id="boxGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+
+    <marker id="arrowCyan" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#00f0ff" />
+    </marker>
+    <marker id="arrowGold" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ffd700" />
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ff3366" />
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#00ff88" />
+    </marker>
+  </defs>
+
+  <style>
+    .header-main { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 800; font-size: 24px; fill: #ffffff; letter-spacing: 2px; }
+    .header-sub { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 500; font-size: 13px; fill: #ffd700; letter-spacing: 1.5px; }
+    .box-title { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 700; font-size: 14.5px; fill: #ffffff; }
+    .box-desc { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 400; font-size: 11.5px; fill: #94a3b8; }
+    .pill-label { font-family: 'Segoe UI', monospace; font-weight: 700; font-size: 10px; fill: #00f0ff; }
+    .decision-text { font-family: 'Segoe UI', -apple-system, sans-serif; font-weight: 700; font-size: 13px; fill: #ffd700; text-anchor: middle; }
+    .cond-text { font-family: 'Segoe UI', monospace; font-weight: 700; font-size: 11px; }
+  </style>
+
+  <!-- Background -->
+  <rect width="1200" height="820" fill="url(#flowBg)" />
+
+  <!-- Grid overlay -->
+  <g opacity="0.05">
+    <path d="M0,80 H1200 M0,160 H1200 M0,240 H1200 M0,320 H1200 M0,400 H1200 M0,480 H1200 M0,560 H1200 M0,640 H1200 M0,720 H1200" stroke="#00f0ff" stroke-width="1" />
+    <path d="M80,0 V820 M160,0 V820 M240,0 V820 M320,0 V820 M400,0 V820 M480,0 V820 M560,0 V820 M640,0 V820 M720,0 V820 M800,0 V820 M880,0 V820 M960,0 V820 M1040,0 V820 M1120,0 V820" stroke="#00f0ff" stroke-width="1" />
+  </g>
+
+  <!-- Title Card -->
+  <rect x="40" y="25" width="1120" height="65" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" filter="url(#boxGlow)" />
+  <text x="70" y="52" class="header-main">TACTICAL RAIL COMBAT &amp; STATE MACHINE FLOWCHART</text>
+  <text x="70" y="73" class="header-sub">FINITE STATE MACHINE • QUICK-DRAW REACTION WINDOW • 3-BUTTON CIPHER • DEFUSAL CYCLE</text>
+
+  <!-- STEP 1: Mission Start -->
+  <g transform="translate(60, 120)" filter="url(#boxGlow)">
+    <rect width="220" height="80" rx="8" fill="#131d33" stroke="#00f0ff" stroke-width="2" />
+    <text x="110" y="32" class="box-title" text-anchor="middle">1. MISSION DEPLOYMENT</text>
+    <text x="110" y="52" class="box-desc" text-anchor="middle">• Sector Infiltration Initialized</text>
+    <text x="110" y="68" class="box-desc" text-anchor="middle">• 120.0s Global Detonation Clock</text>
+  </g>
+
+  <!-- Flow 1 -> 2 -->
+  <path d="M280,160 H340" stroke="#00f0ff" stroke-width="2.5" marker-end="url(#arrowCyan)" />
+
+  <!-- STEP 2: Automated Corridor Sprint -->
+  <g transform="translate(340, 120)" filter="url(#boxGlow)">
+    <rect width="250" height="80" rx="8" fill="#131d33" stroke="#3b82f6" stroke-width="1.5" />
+    <text x="125" y="32" class="box-title" text-anchor="middle">2. RAIL CORRIDOR SPRINT</text>
+    <text x="125" y="52" class="box-desc" text-anchor="middle">• Operative sprints at 6.5 m/s</text>
+    <text x="125" y="68" class="box-desc" text-anchor="middle">• Camera sweeps along waypoints</text>
+  </g>
+
+  <!-- Flow 2 -> 3 -->
+  <path d="M590,160 H650" stroke="#00f0ff" stroke-width="2.5" marker-end="url(#arrowCyan)" />
+
+  <!-- STEP 3: Enemy Detected & Auto-Centering -->
+  <g transform="translate(650, 120)" filter="url(#boxGlow)">
+    <rect width="260" height="80" rx="8" fill="#131d33" stroke="#f59e0b" stroke-width="1.5" />
+    <text x="130" y="32" class="box-title" text-anchor="middle">3. HOSTILE SIGHTED / LOCK</text>
+    <text x="130" y="52" class="box-desc" text-anchor="middle">• Standoff position reached</text>
+    <text x="130" y="68" class="box-desc" text-anchor="middle">• Auto-centers reticle on hostile</text>
+  </g>
+
+  <!-- Flow 3 -> 4 -->
+  <path d="M910,160 H970" stroke="#00f0ff" stroke-width="2.5" marker-end="url(#arrowCyan)" />
+
+  <!-- STEP 4: Quick-Draw Standoff -->
+  <g transform="translate(970, 120)" filter="url(#boxGlow)">
+    <rect width="180" height="80" rx="8" fill="#1e1b4b" stroke="#8b5cf6" stroke-width="2" />
+    <text x="90" y="32" class="box-title" text-anchor="middle">4. QTE STANDOFF</text>
+    <text x="90" y="52" class="box-desc" text-anchor="middle">• Reaction countdown</text>
+    <text x="90" y="68" class="box-desc" text-anchor="middle">• 3.0s down to 1.5s</text>
+  </g>
+
+  <!-- Vertical Flow 4 -> Standoff Decision -->
+  <path d="M1060,200 V270" stroke="#ffd700" stroke-width="2.5" marker-end="url(#arrowGold)" />
+
+  <!-- STEP 5: Quick-Draw Timer Decision Rhombus -->
+  <g transform="translate(940, 270)" filter="url(#boxGlow)">
+    <polygon points="120,0 240,65 120,130 0,65" fill="#18182e" stroke="#ffd700" stroke-width="2" />
+    <text x="120" y="60" class="decision-text">REACTION TIMER</text>
+    <text x="120" y="78" class="decision-text">&gt; 0.0s ?</text>
+  </g>
+
+  <!-- Flow Decision: NO -> Mission Failed -->
+  <path d="M1180,335 H1130" />
+  <path d="M1180,335 H1130" stroke="#ff3366" stroke-width="2.5" />
+  <path d="M1060,400 V470" stroke="#ff3366" stroke-width="2.5" marker-end="url(#arrowRed)" />
+  <text x="1075" y="435" class="cond-text" fill="#ff3366">TIMER EXPIRED (0.0s)</text>
+
+  <!-- BOX: Mission Failed Lethal Shot -->
+  <g transform="translate(950, 470)" filter="url(#boxGlow)">
+    <rect width="220" height="90" rx="8" fill="#2d121c" stroke="#ff3366" stroke-width="2" />
+    <text x="110" y="32" class="box-title" fill="#fca5a5" text-anchor="middle">MISSION FAILED</text>
+    <text x="110" y="52" class="box-desc" text-anchor="middle">• Hostile fires lethal round</text>
+    <text x="110" y="68" class="box-desc" text-anchor="middle">• Operative eliminated</text>
+    <text x="110" y="82" class="cond-text" fill="#ff3366" text-anchor="middle">[R] RETRY SECTOR</text>
+  </g>
+
+  <!-- Flow Decision: YES -> Cipher Verification -->
+  <path d="M940,335 H780" stroke="#00f0ff" stroke-width="2.5" marker-end="url(#arrowCyan)" />
+  <text x="850" y="325" class="cond-text" fill="#00f0ff" text-anchor="middle">ACTIVE (Time Left)</text>
+
+  <!-- STEP 6: 3-Button Cipher Input Matching -->
+  <g transform="translate(480, 280)" filter="url(#boxGlow)">
+    <rect width="300" height="110" rx="10" fill="#0f1f38" stroke="#00f0ff" stroke-width="2" />
+    <text x="150" y="30" class="box-title" text-anchor="middle">5. 3-BUTTON COMBAT CIPHER</text>
+    <text x="150" y="55" class="box-desc" text-anchor="middle">Badges: [C] • [V] • [SPACE]</text>
+    <text x="150" y="73" class="box-desc" text-anchor="middle">Keyboard, Mouse LMB or Hardware Box</text>
+    <rect x="25" y="82" width="250" height="18" rx="4" fill="#00f0ff" fill-opacity="0.15" />
+    <text x="150" y="95" class="pill-label" text-anchor="middle">WRONG KEY = -0.25s PENALTY &amp; SHAKE</text>
+  </g>
+
+  <!-- Flow 5 -> 6 (Takedown) -->
+  <path d="M480,335 H320" stroke="#00ff88" stroke-width="2.5" marker-end="url(#arrowGreen)" />
+  <text x="400" y="325" class="cond-text" fill="#00ff88" text-anchor="middle">CORRECT KEY</text>
+
+  <!-- STEP 7: Precision Takedown & Scoring -->
+  <g transform="translate(60, 280)" filter="url(#boxGlow)">
+    <rect width="260" height="110" rx="10" fill="#0d2b24" stroke="#00ff88" stroke-width="2" />
+    <text x="130" y="30" class="box-title" text-anchor="middle">6. HOSTILE ELIMINATED</text>
+    <text x="130" y="52" class="box-desc" text-anchor="middle">• Headshot: +15 pts (Combo x2..x4)</text>
+    <text x="130" y="70" class="box-desc" text-anchor="middle">• Silent Assassin: +25 bonus pts</text>
+    <text x="130" y="88" class="box-desc" text-anchor="middle">• Drops 3D Ammo Crate / Armor Kit</text>
+  </g>
+
+  <!-- Flow 6 -> Check Enemies Left Decision -->
+  <path d="M190,390 V470" stroke="#ffd700" stroke-width="2.5" marker-end="url(#arrowGold)" />
+
+  <!-- Decision: More enemies in sector? -->
+  <g transform="translate(70, 470)" filter="url(#boxGlow)">
+    <polygon points="120,0 240,60 120,120 0,60" fill="#18182e" stroke="#ffd700" stroke-width="2" />
+    <text x="120" y="55" class="decision-text">MORE GUARDS</text>
+    <text x="120" y="73" class="decision-text">IN SECTOR?</text>
+  </g>
+
+  <!-- If YES -> Dash to next enemy -->
+  <path d="M240,530 H440 V420 H440 V200 H400" stroke="#ffd700" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrowGold)" />
+  <text x="320" y="520" class="cond-text" fill="#ffd700">YES: 12.0 m/s Dash</text>
+
+  <!-- If NO -> Approach Bomb Terminal -->
+  <path d="M190,590 V660" stroke="#00ff88" stroke-width="2.5" marker-end="url(#arrowGreen)" />
+  <text x="210" y="625" class="cond-text" fill="#00ff88">NO: ALL GUARDS DOWN</text>
+
+  <!-- STEP 8: Approach Bomb Beacon -->
+  <g transform="translate(60, 660)" filter="url(#boxGlow)">
+    <rect width="260" height="90" rx="8" fill="#131d33" stroke="#00f0ff" stroke-width="1.5" />
+    <text x="130" y="30" class="box-title" text-anchor="middle">7. REACH ORDNANCE BEACON</text>
+    <text x="130" y="50" class="box-desc" text-anchor="middle">• Sprints to Bomb Terminal (3D Beacon)</text>
+    <text x="130" y="68" class="box-desc" text-anchor="middle">• Press [E] or Click to Disarm</text>
+    <text x="130" y="82" class="pill-label" text-anchor="middle">WITHIN 5.0m PROXIMITY</text>
+  </g>
+
+  <!-- Flow 8 -> 9 (Defusal Station) -->
+  <path d="M320,705 H450" stroke="#00f0ff" stroke-width="2.5" marker-end="url(#arrowCyan)" />
+
+  <!-- STEP 9: Defusal Station Mini-Game -->
+  <g transform="translate(450, 650)" filter="url(#boxGlow)">
+    <rect width="360" height="110" rx="10" fill="#1e1b4b" stroke="#a855f7" stroke-width="2" />
+    <text x="180" y="30" class="box-title" text-anchor="middle">8. 6-WIRE DEFUSAL STATION</text>
+    <text x="180" y="52" class="box-desc" text-anchor="middle">• Read Serial Plate &amp; 4-LED Status Bank</text>
+    <text x="180" y="70" class="box-desc" text-anchor="middle">• Cut Valid Wires: [1-6] or [R, G, Y, K, B, W]</text>
+    <text x="180" y="88" class="box-desc" text-anchor="middle">• Multi-Stage Sequences (Sectors 3 &amp; 4)</text>
+    <text x="180" y="102" class="cond-text" fill="#f43f5e" text-anchor="middle">FAULT: -20s PENALTY ON DETONATION TIMER</text>
+  </g>
+
+  <!-- Flow 9 -> 10 (Sector Cleared) -->
+  <path d="M810,705 H920" stroke="#00ff88" stroke-width="2.5" marker-end="url(#arrowGreen)" />
+
+  <!-- STEP 10: Sector Cleared / Grand Victory -->
+  <g transform="translate(920, 650)" filter="url(#boxGlow)">
+    <rect width="240" height="110" rx="10" fill="#0d2b24" stroke="#00ff88" stroke-width="2.5" />
+    <text x="120" y="30" class="box-title" fill="#6ee7b7" text-anchor="middle">9. SECTOR SECURED!</text>
+    <text x="120" y="52" class="box-desc" text-anchor="middle">• +100 Defusal Bonus</text>
+    <text x="120" y="70" class="box-desc" text-anchor="middle">• +2x Time Left Score Bonus</text>
+    <text x="120" y="88" class="box-desc" text-anchor="middle">• Carries Remaining Clock Over</text>
+    <text x="120" y="102" class="pill-label" fill="#6ee7b7" text-anchor="middle">AUTO-ADVANCE / VICTORY</text>
+  </g>
+</svg>
