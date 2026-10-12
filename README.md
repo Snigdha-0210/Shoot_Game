@@ -374,6 +374,7 @@ void loop() {
 | <kbd>MOUSE</kbd> | First-Person Look | Precision aim via PointerLock mouse capture. |
 | <kbd>LMB</kbd> / <kbd>Space</kbd> | Fire Weapon / Trigger | Fires equipped weapon or triggers active QTE action. |
 | <kbd>RMB</kbd> | Aim Down Sights (ADS) | Precision optical zoom with reduced weapon sway. |
+| <kbd>N</kbd> | Night Vision Goggles (NVG) | Toggles AN/PVS-31A green phosphor thermal optics with CRT scanlines, exposure boost, and luminous enemy thermal silhouettes. |
 | <kbd>Q</kbd> or <kbd>1</kbd> / <kbd>2</kbd> | Quick-Swap Weapon | Toggles between Suppressed M4A1-S Carbine and USP-45 Pistol. |
 | <kbd>G</kbd> | Smoke Grenade | Deploys volumetric smoke cloud that blinds enemies and blocks line-of-sight for 14s. |
 | <kbd>Space</kbd> | Adrenaline Focus | Triggers **0.35x bullet-time slow motion** to line up critical headshots. |

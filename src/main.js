@@ -162,6 +162,20 @@ class TacticalGame {
       });
     }
 
+    // Night Vision Goggles HUD Button Toggle
+    const btnNvg = document.getElementById('hud-nvg-badge');
+    if (btnNvg) {
+      btnNvg.addEventListener('click', () => {
+        if (this.state === 'PLAYING') {
+          const nvgActive = this.player.toggleNightVision();
+          this.renderer.setNightVision(nvgActive);
+          this.ui.setNightVision(nvgActive);
+          this.enemies.forEach(e => e.setNightVisionMode(nvgActive));
+          this.ui.showScoreToast(nvgActive ? '🥽 NIGHT VISION OPTICS ACTIVATED' : '🥽 NIGHT VISION DEACTIVATED', 'headshot');
+        }
+      });
+    }
+
     // Global Single-Button / Key Listener for Level Transition Screens (Breadboard Trigger / Space / Enter)
     window.addEventListener('keydown', (e) => {
       if (this.state === 'LEVEL_COMPLETE' && (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyF' || e.code === 'KeyZ')) {
@@ -215,6 +229,16 @@ class TacticalGame {
 
     // Initialize Automated Rail Navigation
     this.railController.initLevelRail(data.railWaypoints, data.enemies, data.bomb, this.player, this.currentLevel);
+
+    // Sync Night Vision state to newly spawned enemies
+    this.enemies.forEach(e => e.setNightVisionMode(this.player.isNightVision));
+
+    // Tactical briefing tip for Level 3
+    if (levelNumber === 3) {
+      setTimeout(() => {
+        this.ui.showScoreToast('💡 TIP: ELEVATED CATWALK SNIPERS! PRESS [N] FOR NIGHT VISION', 'headshot');
+      }, 800);
+    }
   }
 
   // Handle successful bomb defusal
@@ -402,6 +426,19 @@ class TacticalGame {
           break; // Process one distinct input action per frame
         }
       }
+
+      // Night Vision Goggles Keybind [N]
+      if (this.input.isJustPressed('KeyN')) {
+        const nvgActive = this.player.toggleNightVision();
+        this.renderer.setNightVision(nvgActive);
+        this.ui.setNightVision(nvgActive);
+        this.enemies.forEach(e => e.setNightVisionMode(nvgActive));
+        this.ui.showScoreToast(nvgActive ? '🥽 NIGHT VISION OPTICS ACTIVATED' : '🥽 NIGHT VISION DEACTIVATED', 'headshot');
+      }
+
+      // Directional Threat Indicator for Hostile Fire / Elevated Snipers
+      const activeHostile = this.railController.targetEnemy || this.enemies.find(e => !e.isDead && (e.state === 'combat' || e.archetype === 'sniper'));
+      this.ui.updateThreatIndicator(activeHostile, this.renderer.camera);
 
       // 4. Enemy AI & Attack damage
       this.aiManager.update(gameDelta, this.player, () => {

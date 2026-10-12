@@ -94,6 +94,75 @@ export class UIController {
     this.lastRenderedEnemy = null;
     this.lastRenderedStep = -1;
     this.onBadgeClickCallback = null;
+
+    // Night Vision & Threat Indicator Elements
+    this.nvgOverlay = document.getElementById('nvg-overlay');
+    this.hudNvgStatus = document.getElementById('hud-nvg-status');
+    this.hudNvgBadge = document.getElementById('hud-nvg-badge');
+    this.threatIndicator = document.getElementById('threat-indicator-arrow');
+    this.threatDistText = document.getElementById('threat-dist-text');
+  }
+
+  setNightVision(enabled) {
+    if (this.nvgOverlay) {
+      this.nvgOverlay.classList.toggle('hidden', !enabled);
+    }
+    if (this.hudNvgStatus) {
+      this.hudNvgStatus.textContent = enabled ? 'NVG: ACTIVE [ON]' : 'NVG: OFF';
+    }
+    if (this.hudNvgBadge) {
+      this.hudNvgBadge.classList.toggle('active', enabled);
+    }
+  }
+
+  updateThreatIndicator(enemy, camera) {
+    if (!this.threatIndicator) return;
+    if (!enemy || enemy.isDead || !camera) {
+      this.threatIndicator.classList.add('hidden');
+      return;
+    }
+
+    const enemyPos = new THREE.Vector3();
+    if (enemy.headGroup) {
+      enemy.headGroup.getWorldPosition(enemyPos);
+    } else {
+      enemy.root.getWorldPosition(enemyPos);
+      enemyPos.y += 1.5;
+    }
+
+    const camPos = camera.position;
+    const dist = camPos.distanceTo(enemyPos);
+
+    if (dist > 50) {
+      this.threatIndicator.classList.add('hidden');
+      return;
+    }
+
+    const screenPos = enemyPos.clone().project(camera);
+    const isBehind = screenPos.z > 1.0;
+    let screenX = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+    let screenY = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight;
+
+    if (isBehind) {
+      screenX = window.innerWidth - screenX;
+      screenY = window.innerHeight - 80;
+    }
+
+    const padding = 60;
+    screenX = Math.max(padding, Math.min(window.innerWidth - padding, screenX));
+    screenY = Math.max(padding, Math.min(window.innerHeight - padding, screenY));
+
+    this.threatIndicator.style.left = `${screenX}px`;
+    this.threatIndicator.style.top = `${screenY}px`;
+
+    let label = `${enemy.archetype.toUpperCase()} [${dist.toFixed(1)}m]`;
+    if (enemy.archetype === 'sniper') {
+      label = `⚠️ ELEVATED SNIPER [${dist.toFixed(1)}m]`;
+    }
+    if (this.threatDistText) {
+      this.threatDistText.textContent = label;
+    }
+    this.threatIndicator.classList.remove('hidden');
   }
 
   showHUD(visible = true) {
@@ -103,6 +172,7 @@ export class UIController {
       this.hud.classList.add('hidden');
       if (this.bombWaypoint) this.bombWaypoint.classList.add('hidden');
       if (this.targetLockPrompt) this.targetLockPrompt.classList.add('hidden');
+      if (this.threatIndicator) this.threatIndicator.classList.add('hidden');
     }
   }
 

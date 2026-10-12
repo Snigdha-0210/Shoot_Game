@@ -53,8 +53,9 @@ export class Player {
     this.recoilOffset = new THREE.Vector3();
     this.recoilRotation = new THREE.Vector3();
 
-    // Flashlight
+    // Flashlight & Night Vision Goggles (NVG)
     this.flashlightOn = true;
+    this.isNightVision = false;
     this.setupFlashlight();
 
     // Dual Weapon Inventory & Equipment (Arcade Unlimited Reserves)
@@ -117,6 +118,14 @@ export class Player {
   toggleFlashlight() {
     this.flashlightOn = !this.flashlightOn;
     this.flashlight.intensity = this.flashlightOn ? 1.8 : 0;
+  }
+
+  toggleNightVision() {
+    this.isNightVision = !this.isNightVision;
+    try {
+      audio.playNightVision(this.isNightVision);
+    } catch (e) {}
+    return this.isNightVision;
   }
 
   setupWeaponModels() {

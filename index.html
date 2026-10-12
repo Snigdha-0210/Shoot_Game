@@ -121,6 +121,27 @@
       <div id="waypoint-arrow" class="waypoint-arrow hidden">▼</div>
     </div>
 
+    <!-- Directional Hostile Fire / Sniper Threat Indicator -->
+    <div id="threat-indicator-container" class="threat-indicator-container">
+      <div id="threat-indicator-arrow" class="threat-indicator-arrow hidden">
+        <div class="threat-beacon-pulse"></div>
+        <span class="threat-icon">⚠️</span>
+        <span id="threat-dist-text" class="threat-dist-text">SNIPER (CATWALK) 12m</span>
+      </div>
+    </div>
+
+    <!-- Fullscreen Night Vision Goggles (NVG) Tactical Overlay -->
+    <div id="nvg-overlay" class="nvg-overlay hidden">
+      <div class="nvg-scanlines"></div>
+      <div class="nvg-vignette"></div>
+      <div class="nvg-hud-scope">
+        <div class="nvg-header-tag">
+          <span class="nvg-pulse-dot">●</span> AN/PVS-31A THERMAL OPTICS ACTIVE [ISO 12800]
+        </div>
+        <div class="nvg-reticle-bracket"></div>
+      </div>
+    </div>
+
     <!-- Directional Damage Flash -->
     <div id="damage-vignette" class="damage-vignette"></div>
     <div id="damage-indicator" class="damage-indicator"></div>
@@ -200,9 +221,16 @@
           <span id="hud-smoke-count" class="item-name">SMOKE GRENADE (2)</span>
         </div>
 
+        <!-- Tactical Night Vision Goggles (NVG) Badge -->
+        <div id="hud-nvg-badge" class="tactical-item nvg-badge" title="Press [N] to Toggle Night Vision">
+          <span class="item-key">[N]</span>
+          <span class="item-icon">🥽</span>
+          <span id="hud-nvg-status" class="item-name">NVG: OFF</span>
+        </div>
+
         <div class="stance-indicator">
           <span id="hud-stance" class="stance-badge">STAND</span>
-          <span class="stance-tip">[C] CROUCH • [Q] SWAP GUN • [G] SMOKE • [SPACE] SLOW-MO</span>
+          <span class="stance-tip">[C] CROUCH • [Q] SWAP GUN • [G] SMOKE • [N] NIGHT VISION • [SPACE] SLOW-MO</span>
         </div>
       </div>
 
@@ -339,6 +367,7 @@
           <span class="ctrl-chip"><kbd>C</kbd> CIRCUIT C CIPHER</span>
           <span class="ctrl-chip"><kbd>V</kbd> CIRCUIT V CIPHER</span>
           <span class="ctrl-chip"><kbd>SPACE</kbd> / <kbd>TRIGGER</kbd> / <kbd>LMB</kbd> KINETIC TRIGGER</span>
+          <span class="ctrl-chip"><kbd>N</kbd> 🥽 NIGHT VISION GOGGLES</span>
           <span class="ctrl-chip"><kbd>1 - 6</kbd> BREADBOARD DEFUSAL WIRES</span>
         </div>
       </div>

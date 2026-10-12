@@ -246,8 +246,15 @@ export class LevelManager {
     this.createCatwalk(-12, 4.0, 0, 6, 16);
     this.createCatwalk(12, 4.0, 0, 6, 16);
 
-    this.createFloodlight(-8, 8, 0, 0x00f0ff);
-    this.createFloodlight(8, 8, 0, 0x00f0ff);
+    // Focused Catwalk Spotlights directly illuminating the sniper perch & catwalks
+    this.createCatwalkSpotlight(12, 8.5, 1.0, 12, 4.0, 1.0, 0xffffff);
+    this.createCatwalkSpotlight(-12, 8.5, 0.0, -12, 4.0, 0.0, 0x00f0ff);
+
+    // Arena Floodlights for crisp enemy silhouette visibility
+    this.createFloodlight(-8, 9, 0, 0x00f0ff);
+    this.createFloodlight(8, 9, 0, 0x00f0ff);
+    this.createFloodlight(0, 12, 8, 0x99ccff);
+    this.createFloodlight(0, 12, -10, 0x99ccff);
 
     this.bomb = new Bomb(this.scene, 0, 0, -25, 120);
 
@@ -723,5 +730,25 @@ export class LevelManager {
     this.scene.add(light);
     this.levelObjects.push(light);
     this.levelObjects.push(targetObj);
+  }
+
+  createCatwalkSpotlight(x, y, z, targetX, targetY, targetZ, color = 0xffffff) {
+    const spot = new THREE.SpotLight(color, 4.5, 38, Math.PI / 4, 0.3, 1.0);
+    spot.position.set(x, y, z);
+    const targetObj = new THREE.Object3D();
+    targetObj.position.set(targetX, targetY, targetZ);
+    this.scene.add(targetObj);
+    spot.target = targetObj;
+    this.scene.add(spot);
+    this.levelObjects.push(spot);
+    this.levelObjects.push(targetObj);
+
+    // Lamp housing visual
+    const lampGeom = new THREE.CylinderGeometry(0.25, 0.35, 0.5, 8);
+    lampGeom.rotateX(Math.PI / 2);
+    const lampMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const lamp = new THREE.Mesh(lampGeom, lampMat);
+    lamp.position.set(x, y, z);
+    this.addObj(lamp);
   }
 }

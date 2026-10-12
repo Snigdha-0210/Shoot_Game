@@ -1693,4 +1693,183 @@ html, body {
   letter-spacing: 1px;
 }
 
+/* ==========================================================================
+   TACTICAL NIGHT VISION GOGGLES (NVG) & THERMAL CRT OVERLAY
+   ========================================================================== */
+.nvg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(16, 255, 80, 0.16) 0%, rgba(6, 120, 40, 0.28) 65%, rgba(2, 40, 15, 0.85) 100%);
+  mix-blend-mode: screen;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.88), inset 0 0 40px rgba(0, 255, 80, 0.4);
+  animation: nvg-flicker 0.15s ease-out;
+}
+
+@keyframes nvg-flicker {
+  0% { opacity: 0; filter: brightness(3.0); }
+  50% { opacity: 0.9; filter: brightness(2.2); }
+  100% { opacity: 1; filter: brightness(1.0); }
+}
+
+.nvg-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.18),
+    rgba(0, 0, 0, 0.18) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.nvg-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 20, 5, 0.95) 100%);
+}
+
+.nvg-hud-scope {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.nvg-header-tag {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 35, 10, 0.75);
+  border: 1px solid rgba(0, 255, 100, 0.7);
+  padding: 4px 14px;
+  border-radius: 4px;
+  font-family: var(--font-tech);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #00ff66;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 15px rgba(0, 255, 100, 0.35);
+}
+
+.nvg-pulse-dot {
+  color: #00ff66;
+  animation: nvg-dot-pulse 0.8s infinite alternate;
+}
+
+@keyframes nvg-dot-pulse {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to { opacity: 1.0; transform: scale(1.2); }
+}
+
+.nvg-reticle-bracket {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140px;
+  height: 140px;
+  transform: translate(-50%, -50%);
+  border: 1px dashed rgba(0, 255, 100, 0.35);
+  border-radius: 50%;
+}
+
+/* Tactical HUD NVG Badge */
+.tactical-item.nvg-badge {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tactical-item.nvg-badge:hover {
+  border-color: #00ff88;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.5);
+}
+
+.tactical-item.nvg-badge.active {
+  background: rgba(0, 255, 100, 0.22);
+  border-color: #00ff66;
+  color: #00ff66;
+  box-shadow: 0 0 16px rgba(0, 255, 100, 0.6);
+}
+
+.tactical-item.nvg-badge.active .item-name {
+  color: #00ff66;
+  font-weight: 800;
+  text-shadow: 0 0 8px #00ff66;
+}
+
+/* ==========================================================================
+   DIRECTIONAL THREAT INDICATOR (HOSTILE CATWALK / SNIPER DETECTION)
+   ========================================================================== */
+.threat-indicator-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.threat-indicator-arrow {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(30, 5, 10, 0.85);
+  border: 1.5px solid #ff0044;
+  border-radius: 6px;
+  box-shadow: 0 0 20px rgba(255, 0, 68, 0.65);
+  animation: threat-pulse 0.7s infinite alternate ease-in-out;
+  transition: opacity 0.15s ease;
+}
+
+@keyframes threat-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 10px rgba(255, 0, 68, 0.4); }
+  100% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 25px rgba(255, 0, 68, 0.9); }
+}
+
+.threat-beacon-pulse {
+  width: 8px;
+  height: 8px;
+  background: #ff0044;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ff0044;
+}
+
+.threat-icon {
+  font-size: 1.1rem;
+}
+
+.threat-dist-text {
+  font-family: var(--font-tech);
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #ff3366;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(255, 51, 102, 0.8);
+}
+
 

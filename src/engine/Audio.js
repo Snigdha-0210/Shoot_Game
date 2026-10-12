@@ -689,6 +689,54 @@ class SoundEngine {
       osc.stop(now + idx * 0.04 + 0.13);
     });
   }
+
+  // Night Vision Goggles (NVG) Activation / Deactivation Sound
+  playNightVision(isOn = true) {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Switch mechanical click
+    const clickOsc = this.ctx.createOscillator();
+    const clickGain = this.ctx.createGain();
+    clickOsc.type = 'square';
+    clickOsc.frequency.setValueAtTime(800, now);
+    clickOsc.frequency.exponentialRampToValueAtTime(120, now + 0.03);
+    clickGain.gain.setValueAtTime(0.2, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+    clickOsc.connect(clickGain);
+    clickGain.connect(this.ctx.destination);
+    clickOsc.start(now);
+    clickOsc.stop(now + 0.035);
+
+    if (isOn) {
+      // Signature NVG high-frequency cathode tube power-up whine
+      const whineOsc = this.ctx.createOscillator();
+      const whineGain = this.ctx.createGain();
+      whineOsc.type = 'sine';
+      whineOsc.frequency.setValueAtTime(1400, now);
+      whineOsc.frequency.exponentialRampToValueAtTime(3800, now + 0.22);
+      whineGain.gain.setValueAtTime(0.02, now);
+      whineGain.gain.linearRampToValueAtTime(0.18, now + 0.15);
+      whineGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      whineOsc.connect(whineGain);
+      whineGain.connect(this.ctx.destination);
+      whineOsc.start(now);
+      whineOsc.stop(now + 0.48);
+    } else {
+      // Powered down cutoff tone
+      const offOsc = this.ctx.createOscillator();
+      const offGain = this.ctx.createGain();
+      offOsc.type = 'sine';
+      offOsc.frequency.setValueAtTime(3200, now);
+      offOsc.frequency.exponentialRampToValueAtTime(900, now + 0.15);
+      offGain.gain.setValueAtTime(0.15, now);
+      offGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      offOsc.connect(offGain);
+      offGain.connect(this.ctx.destination);
+      offOsc.start(now);
+      offOsc.stop(now + 0.16);
+    }
+  }
 }
 
 export const audio = new SoundEngine();

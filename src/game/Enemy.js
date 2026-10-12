@@ -215,21 +215,61 @@ export class Enemy {
     this.rifle.position.set(0.08, -0.12, rifleLen * 0.55);
     this.armsGroup.add(this.rifle);
 
-    // Sniper Laser Aim Beam
+    // --- Tactical Beacon & Visor Light for high visibility ---
+    let beaconColor = 0x00f0ff;
+    if (this.archetype === 'sniper') beaconColor = 0xff0033; // High-visibility laser crimson for snipers
+    else if (this.archetype === 'juggernaut') beaconColor = 0xff3300;
+    else if (this.archetype === 'boss') beaconColor = 0xffd700;
+
+    this.beaconLight = new THREE.PointLight(beaconColor, 2.5, 12);
+    this.beaconLight.position.set(0, 1.6, 0.25);
+    this.headGroup.add(this.beaconLight);
+
+    // Glowing chest tactical marker
+    const chestMarkerGeom = new THREE.BoxGeometry(0.18, 0.08, 0.04);
+    const chestMarkerMat = new THREE.MeshBasicMaterial({ color: beaconColor });
+    this.chestMarker = new THREE.Mesh(chestMarkerGeom, chestMarkerMat);
+    this.chestMarker.position.set(0, 0.15, torsoScaleZ * 0.5 + 0.02);
+    this.torso.add(this.chestMarker);
+
+    // --- NVG Thermal Silhouette Overlay Mesh ---
+    const thermalGeo = new THREE.CylinderGeometry(0.52, 0.46, 1.85, 12);
+    this.thermalMat = new THREE.MeshBasicMaterial({
+      color: 0x00ff88,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.85
+    });
+    this.thermalMesh = new THREE.Mesh(thermalGeo, this.thermalMat);
+    this.thermalMesh.position.y = 0.95;
+    this.thermalMesh.visible = false;
+    this.root.add(this.thermalMesh);
+
+    // Inner thermal core for solid silhouette
+    const thermalCoreGeo = new THREE.CylinderGeometry(0.46, 0.40, 1.80, 10);
+    this.thermalCoreMat = new THREE.MeshBasicMaterial({
+      color: 0x55ff99,
+      transparent: true,
+      opacity: 0.35
+    });
+    this.thermalCoreMesh = new THREE.Mesh(thermalCoreGeo, this.thermalCoreMat);
+    this.thermalCoreMesh.position.y = 0.95;
+    this.thermalCoreMesh.visible = false;
+    this.root.add(this.thermalCoreMesh);
+
+    // Sniper Laser Aim Beam (Global World Space Line for precision tracking)
     if (this.archetype === 'sniper') {
-      const laserGeo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 50)
-      ]);
+      const laserGeo = new THREE.BufferGeometry();
+      const laserPositions = new Float32Array(6);
+      laserGeo.setAttribute('position', new THREE.BufferAttribute(laserPositions, 3));
       const laserMat = new THREE.LineBasicMaterial({
-        color: 0xff0044,
+        color: 0xff0033,
         transparent: true,
-        opacity: 0.85,
-        linewidth: 2
+        opacity: 0.95,
+        linewidth: 3
       });
       this.sniperLaser = new THREE.Line(laserGeo, laserMat);
-      this.sniperLaser.position.set(0.08, -0.12, rifleLen);
-      this.armsGroup.add(this.sniperLaser);
+      this.scene.add(this.sniperLaser);
     }
 
     // Weapon Flashlight
@@ -262,11 +302,23 @@ export class Enemy {
     this.die();
   }
 
+  setNightVisionMode(enabled) {
+    if (this.isDead) return;
+    if (this.thermalMesh) this.thermalMesh.visible = enabled;
+    if (this.thermalCoreMesh) this.thermalCoreMesh.visible = enabled;
+    if (this.beaconLight) {
+      this.beaconLight.intensity = enabled ? 5.0 : 2.5;
+    }
+  }
+
   die() {
     this.isDead = true;
     this.flashlight.intensity = 0;
+    if (this.beaconLight) this.beaconLight.intensity = 0;
     if (this.sniperLaser) this.sniperLaser.visible = false;
     if (this.shieldMesh) this.shieldMesh.visible = false;
+    if (this.thermalMesh) this.thermalMesh.visible = false;
+    if (this.thermalCoreMesh) this.thermalCoreMesh.visible = false;
     this.hitMeshes.forEach(m => {
       m.userData.isDead = true;
     });
@@ -274,12 +326,28 @@ export class Enemy {
 
   update(delta, playerPos) {
     if (this.isDead) {
+      if (this.sniperLaser) this.sniperLaser.visible = false;
       if (this.deathTimer < 1.0) {
         this.deathTimer += delta;
         this.root.rotation.x = -Math.min(Math.PI / 2, this.deathTimer * 3.5);
         this.root.position.y = Math.max(0.15, 1.05 - this.deathTimer * 1.0);
       }
       return;
+    }
+
+    // Dynamic Sniper Laser Tracking straight towards player eye level
+    if (this.sniperLaser && playerPos) {
+      this.sniperLaser.visible = true;
+      const muzzlePos = new THREE.Vector3();
+      this.rifle.getWorldPosition(muzzlePos);
+
+      const targetPos = playerPos.clone();
+      targetPos.y += 1.5; // Player chest / head level
+
+      const posAttr = this.sniperLaser.geometry.attributes.position;
+      posAttr.setXYZ(0, muzzlePos.x, muzzlePos.y, muzzlePos.z);
+      posAttr.setXYZ(1, targetPos.x, targetPos.y, targetPos.z);
+      posAttr.needsUpdate = true;
     }
 
     // Smoke blindness recovery
@@ -319,6 +387,10 @@ export class Enemy {
   }
 
   destroy() {
+    if (this.sniperLaser) {
+      this.scene.remove(this.sniperLaser);
+      if (this.sniperLaser.geometry) this.sniperLaser.geometry.dispose();
+    }
     this.scene.remove(this.root);
   }
 }

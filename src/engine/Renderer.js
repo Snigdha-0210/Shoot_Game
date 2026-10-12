@@ -67,6 +67,32 @@ export class GameRenderer {
     this.scene.add(this.hemiLight);
   }
 
+  // Toggle Night Vision Goggles (NVG) phosphor lighting and exposure boost
+  setNightVision(enabled) {
+    this.isNightVision = enabled;
+    if (enabled) {
+      // Boost ambient light and tint to night vision phosphor green
+      this.ambientLight.intensity = 3.2;
+      this.ambientLight.color.setHex(0x33ff77);
+      this.moonLight.intensity = 3.8;
+      this.moonLight.color.setHex(0x77ffaa);
+      this.hemiLight.intensity = 2.0;
+      this.hemiLight.color.setHex(0x22ff66);
+      this.scene.fog.color.setHex(0x072213);
+      this.renderer.toneMappingExposure = 2.4;
+    } else {
+      // Restore standard realistic midnight tactical lighting
+      this.ambientLight.intensity = 1.3;
+      this.ambientLight.color.setHex(0x557799);
+      this.moonLight.intensity = 2.0;
+      this.moonLight.color.setHex(0x99ccff);
+      this.hemiLight.intensity = 0.8;
+      this.hemiLight.color.setHex(0x224466);
+      this.scene.fog.color.setHex(0x0c1524);
+      this.renderer.toneMappingExposure = 1.35;
+    }
+  }
+
   // Create atmospheric night sky dome with stars
   setupSkyDome() {
     const skyGeom = new THREE.SphereGeometry(300, 32, 16);
