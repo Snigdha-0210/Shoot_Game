@@ -59,6 +59,14 @@ This document serves as the comprehensive progress tracker, architecture referen
 - **Problem:** Close interaction requirement ($< 2.5\text{m}$) was restrictive.
 - **Resolution:** Extended defusal activation range to **$4.0\text{m}$**, added an augmented reality **3D Screen-Space Waypoint Tag**, and allowed defusing via <kbd>E</kbd> key or direct mouse click on the prompt / waypoint tag.
 
+### 6. Catwalk Hostile Visibility & Night Vision Goggles (NVG) Implementation
+- **Problem:** In Level 3 (Research Silo), distant catwalk snipers were difficult to spot against the dark industrial architecture and shadows while firing from elevated perches ($y = 4.0\text{m}$).
+- **Resolution:**
+  1. Added dedicated high-intensity catwalk spotlights directly targeting the catwalk sniper and walkways in `LevelManager.js`.
+  2. Implemented dynamic world-space **crimson laser targeting beams** in `Enemy.js` updating each frame from the sniper's rifle muzzle to the player's camera.
+  3. Added an augmented reality **Directional Threat Indicator** in `UI.js` displaying the bearing, elevation, and distance to the attacking hostile (`⚠️ ELEVATED SNIPER [14.2m]`).
+  4. Introduced the **AN/PVS-31A Night Vision Goggles** system accessible via <kbd>N</kbd> or on-screen HUD badge, boosting WebGL scene exposure (`2.4x`), overlaying a phosphor green CRT scanline filter, synthesizing procedural capacitor whine audio via Web Audio API, and rendering luminous neon-green/white **thermal enemy silhouettes**.
+
 ---
 
 ## ✂️ Exact Wire Defusal Solutions (All 4 Levels)

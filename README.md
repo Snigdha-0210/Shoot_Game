@@ -7,6 +7,7 @@
 [![Three.js](https://img.shields.io/badge/Three.js-r170-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Web Audio API](https://img.shields.io/badge/Audio-Procedural_Web_Audio-f43f5e?style=for-the-badge&logo=web-audio-api&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+[![Night Vision](https://img.shields.io/badge/Optics-AN%2FPVS--31A_NVG-00ff88?style=for-the-badge&logo=target&logoColor=white)](#-core-gameplay-systems)
 [![Hardware Ready](https://img.shields.io/badge/Hardware-3--Button_Breadboard-ffd700?style=for-the-badge&logo=arduino&logoColor=white)](#-hardware-arcade--breadboard-controller-interface)
 [![License](https://img.shields.io/badge/License-MIT-a855f7?style=for-the-badge)](LICENSE)
 
@@ -101,6 +102,13 @@ Engineered for physical arcade setups and breadboard microcontrollers:
   - Shell casing brass clinks and dynamic acoustic reverb
   - Adrenaline bullet-time heartbeat oscillator with low-pass filtering
   - Procedural emergency sirens, wire snipping tones, and victory fanfare
+
+### 7. 🥽 AN/PVS-31A Night Vision Goggles & Catwalk Threat Detection (<kbd>N</kbd>)
+- **Tactical Keybind (<kbd>N</kbd>)**: Toggle night vision instantly using <kbd>N</kbd> or the on-screen `[N] NVG` badge in the HUD equipment dock.
+- **Procedural CRT Shader & Audio**: Fullscreen phosphor green overlay with CRT scanlines, optic vignette, high-contrast exposure boost (`2.4x`), and realistic capacitor charging whine synthesized via the Web Audio API.
+- **Thermal Enemy Silhouettes**: Illuminates every hostile in the sector with a luminous neon-green/white wireframe thermal silhouette, making distant or concealed targets impossible to miss.
+- **Dynamic Sniper Laser Tracking**: Catwalk snipers project a continuous world-space crimson targeting laser from their rifle muzzle straight to the operative's eye level.
+- **Directional Threat HUD Indicator**: When an enemy aims or fires from elevated positions or off-screen, a pulsing tactical chevron displays their exact bearing and distance (e.g. `⚠️ ELEVATED SNIPER [14.2m]`).
 
 ---
 
@@ -348,7 +356,7 @@ void loop() {
 | :--- | :--- | :---: | :--- |
 | **1. Coastal Infiltration Yard** | Dark rainy cobblestone streets, gas lanterns, brick alleys, and neon bar sign (`BAR NOCTURNE`). | 🟡 Normal | Mk-I Tactical C4 (3 Wires) |
 | **2. Subterranean Bunker & Servers** | High-security concrete bunker, spinning red emergency alert beacons, server racks with animated LEDs. | 🟠 High | Digital Circuit Detonator (4 Wires) |
-| **3. Research Silo & Catwalks** | Industrial bio-chemical research facility, elevated steel catwalks, bubbling radioactive coolant vats. | 🔴 Severe | 2-Stage Bio-Chemical Detonator (5 Wires) |
+| **3. Research Silo & Catwalks** | Industrial bio-chemical research facility, elevated steel catwalks with high-intensity spotlights, bubbling radioactive coolant vats, and elevated sniper perch with red laser tracking and Night Vision support. | 🔴 Severe | 2-Stage Bio-Chemical Detonator (5 Wires) |
 | **4. Fortress Command Citadel** | Polished obsidian marble floors, security laser tripwires, holographic 3D war room, General Malikov boss. | 🟣 Extreme | 3-Stage Master Omega Core (6 Wires) |
 
 ---

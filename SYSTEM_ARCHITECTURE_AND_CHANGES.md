@@ -103,6 +103,13 @@ Shoot_Game/
   - Smoke grenade pin release & gas hiss
   - Slow-mo adrenaline heartbeat pulses
   - Explosions and defusal success fanfares
+  - Night Vision Goggles capacitor power-up whine & mechanical optical switches
+
+### 7. Tactical Night Vision Goggles (NVG) & Catwalk Threat Detection (`Player.js`, `Enemy.js`, `UI.js`)
+- **Keybind Access (`[N]`):** Operative can toggle night vision on/off at will using <kbd>N</kbd> or the on-screen `[N] NVG` badge.
+- **Procedural Phosphor CRT Effect:** Real-time WebGL exposure boost (`2.4x`), ambient lighting amplification (`3.2`), and fullscreen phosphor green CRT scanlines with vignette.
+- **Thermal Enemy Silhouettes:** All hostiles project neon-green/white thermal wireframe outlines, making them clearly visible through smoke, fog, and dark corridors.
+- **Catwalk Illumination & Threat HUD:** Dedicated spotlights in Level 3 illuminate the catwalk sniper perch (`x: 12, y: 4.0, z: 1`). Snipers project an active red laser targeting beam, while a directional HUD chevron points directly to off-screen or elevated threats with distance readouts.
 
 ---
 
